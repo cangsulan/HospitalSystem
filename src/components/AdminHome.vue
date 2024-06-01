@@ -1,0 +1,99 @@
+<script setup>
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+import { defineUser } from '../store/userStore';
+import { defineAdmin } from '../store/adminStore';
+let sysUser = defineUser()
+let sysAdmin = defineAdmin()
+
+import request from '../utils/request'
+
+async function changeMsg() {
+  let { data } = await request.post("/admin/changeMsg", sysAdmin);
+  if (data.code == 200) {
+    alert("修改成功")
+  } else {
+    alert("修改失败")
+  }
+}
+</script>
+
+<template>
+  <div>
+    <h3 class="ht">管理员信息</h3>
+    <!-- 先显示出病人的基本信息 -->
+    <table class="tab" cellspacing="0px">
+      <tr class="ltr">
+        <td>身份证号</td>
+        <td>
+          <input class="ipt" type="text" v-model="sysAdmin.idCard">
+        </td>
+      </tr>
+      <tr class="ltr">
+        <td>真实姓名</td>
+        <td>
+          <input class="ipt" type="text" v-model="sysAdmin.realName">
+        </td>
+      </tr>
+      <tr class="ltr">
+        <td>住址</td>
+        <td>
+          <input class="ipt" type="text" v-model="sysAdmin.address">
+        </td>
+      </tr>
+      <tr class="ltr">
+        <td>联系方式</td>
+        <td>
+          <input class="ipt" type="text" v-model="sysAdmin.phone">
+        </td>
+      </tr>
+      <tr class="ltr">
+        <td colspan="2" class="buttonContainer">
+          <input class="btn1" type="button" @click="changeMsg()" value="修改">
+        </td>
+      </tr>
+    </table>
+  </div>
+</template>
+
+<style scoped>
+.ht {
+  text-align: center;
+  color: cadetblue;
+  font-family: 幼圆;
+}
+
+.tab {
+  width: 500px;
+  border: 5px solid cadetblue;
+  margin: 0px auto;
+  border-radius: 5px;
+  font-family: 幼圆;
+}
+
+.ltr td {
+  border: 1px solid powderblue;
+}
+
+.ipt {
+  border: 0px;
+  width: 80%;
+}
+
+.btn1 {
+  border: 2px solid powderblue;
+  border-radius: 4px;
+  width: 60px;
+  background-color: antiquewhite;
+}
+
+#usernameMsg,
+#userPwdMsg {
+  color: gold;
+}
+
+.buttonContainer {
+  text-align: center;
+}
+</style>
