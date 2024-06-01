@@ -89,6 +89,14 @@ async function changeMsg() {
         </td>
       </tr>
     </table>
+    <br>
+    <hr>
+    <div style="text-align: center;">
+      <h2 class="ht">出诊专区</h2>
+      <router-link to="/showSchedule">
+        <button id="registration">发布出诊信息</button>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -130,5 +138,13 @@ async function changeMsg() {
 
 .buttonContainer {
   text-align: center;
+}
+
+#registration {
+  border: 2px solid powderblue;
+  border-radius: 4px;
+  width: 100px;
+  background-color: antiquewhite;
+
 }
 </style>

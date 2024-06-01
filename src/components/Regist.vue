@@ -7,9 +7,9 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 let registUser = reactive({
-    username: "",
-    userPwd: "",
-    userRole:"patient"
+    username: "",//账户的用户名
+    userPwd: "",//密码
+    userRole:"patient",//身份
 })
 
 let usernameMsg = ref('')

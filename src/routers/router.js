@@ -11,6 +11,7 @@ import Docter from '../components/DocterHome.vue'
 import Patient from '../components/PatientHome.vue'
 import Admin from '../components/AdminHome.vue'
 import Registration from '../components/Registration.vue'
+import ShowSchedule from '../components/ShowSchedule.vue'
 
 import pinia from '../pinia.js'
 import {
@@ -49,6 +50,10 @@ const router = createRouter({
         {
             path: "/registration",
             component: Registration
+        },
+        {
+            path: "/showSchedule",
+            component: ShowSchedule
         },
     ]
 })

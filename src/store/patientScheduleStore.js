@@ -6,13 +6,14 @@ import {
     defineStore
 } from 'pinia'
 
-export const defineSchedule = defineStore(
-    "scheduleList", {
+export const definePatientSchedule = defineStore(
+    "patientScheduleList", {
         state: () => {
             return {
-                itemList: [{
+                itemList: [
+                    {
                     uid: 1, //医生在数据库的id
-                    docterName: "李四",
+                    docterName: "李五",
                     phone: "12892849342", //联系电话
                     year: 2024, //年月日 均为 出诊时间
                     month: 10,
@@ -25,7 +26,9 @@ export const defineSchedule = defineStore(
                     hospital: "北二院", //医生所属医院
                     title: "主任", //医生的职称
                     office: "精神科", //医生所属科室
-                }]
+                    },
+                    
+                ]
             }
         },
         getters: {

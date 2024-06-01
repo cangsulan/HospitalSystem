@@ -1,14 +1,14 @@
 <script setup>
 /* 导入pinia数据 */
 import { defineUser } from "../store/userStore.js"
-import { defindSchedule } from "../store/scheduleStore.js"
+import { defineSchedule } from "../store/scheduleStore.js"
 import { definePatient } from '../store/patientStore';
 import { defineDocter } from '../store/docterStore.js';
 import { defineAdmin } from '../store/adminStore.js';
 
 
 let sysUser = defineUser()
-let schedule = defindSchedule()
+let schedule = defineSchedule()
 let sysPatient = definePatient()
 let sysDocter = defineDocter()
 let sysAdmin = defineAdmin()
