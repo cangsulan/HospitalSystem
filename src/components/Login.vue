@@ -52,10 +52,15 @@ async function login() {
         sysUser.uid = data.data.loginUser.uid;
         sysUser.username = data.data.loginUser.username;
         sysUser.userRole = data.data.loginUser.userRole;
+        sysUser.userPwd = data.data.loginUser.userPwd;
+        sysUser.userChecked = data.data.loginUser.userChecked;
+
+        //这里做一下判定，看账户有没有通过审核
+
         //根据用户身份来跳转：
         if (sysUser.userRole == "patient") {
             router.push("/patienthome");
-        } else if (sysUser.userRole == "docter") {
+        } else if (sysUser.userRole == "doctor") {
             router.push("/docterhome");
         } else if (sysUser.userRole == "admin") {
             router.push("/adminhome");

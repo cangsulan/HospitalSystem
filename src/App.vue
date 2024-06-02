@@ -1,5 +1,6 @@
 <script setup>
 import Header from './components/Header.vue'
+
 </script>
 
 <template>
@@ -10,6 +11,4 @@ import Header from './components/Header.vue'
   </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

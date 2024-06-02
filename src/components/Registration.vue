@@ -1,10 +1,16 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUpdated } from 'vue'
 /* 导入发送请求的axios对象 */
 import request from '../utils/request'
+//做支付界面时用到路由传参
+import { useRouter } from 'vue-router';
+let router = useRouter()
+//定义动态路由路径传参方法
+let transmit = (index) => {
+    router.push({ path: "/topay", query: { index: index } })
+}
 
-import { useRouter } from 'vue-router'
-const router = useRouter()
+
 
 import { defineUser } from '../store/userStore';
 import { definePatient } from '../store/patientStore';
@@ -27,7 +33,6 @@ async function showPatientSchedule() {
 }
 
 async function showSchedule() {
-    console.log(schedule.itemList[0])
     // let { data } = await request.get("schedule/findAllSchedule")
     // schedule.itemList = data.data.itemList
 }
@@ -98,7 +103,9 @@ function refresh() {
                 <td>{{ item.year }}-{{ item.month }}-{{ item.day }} {{ item.time }}</td>
                 <td>{{ item.availableCount }}</td>
                 <td class="buttonContainer">
-                    <button class="btn1" @click="toApply(index)">挂号</button>
+                    <router-link v-bind:to="{ path: '/topay', query: { index: index } }">
+                        <button class="btn1">挂号</button>
+                    </router-link>
                 </td>
             </tr>
         </table>

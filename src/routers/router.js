@@ -12,6 +12,12 @@ import Patient from '../components/PatientHome.vue'
 import Admin from '../components/AdminHome.vue'
 import Registration from '../components/Registration.vue'
 import ShowSchedule from '../components/ShowSchedule.vue'
+import ToPay from '../components/ToPay.vue'
+import ChangePwd from '../components/changePwd.vue'
+import CheckRegist from '../components/CheckRegist.vue'
+import CheckSchedule from '../components/CheckSchedule.vue'
+import ChangeUser from '../components/ChangeUser.vue'
+import FindUser from '../components/FindUser.vue'
 
 import pinia from '../pinia.js'
 import {
@@ -54,6 +60,30 @@ const router = createRouter({
         {
             path: "/showSchedule",
             component: ShowSchedule
+        },
+        {
+            path: "/topay",
+            component: ToPay
+        },
+        {
+            path: "/changePwd",
+            component: ChangePwd
+        },
+        {
+            path: "/checkRegist",
+            component: CheckRegist
+        },
+        {
+            path: "/checkSchedule",
+            component:CheckSchedule
+        },
+        {
+            path: "/changeUser",
+            component:ChangeUser
+        },
+        {
+            path: "/findUser",
+            component:FindUser
         },
     ]
 })

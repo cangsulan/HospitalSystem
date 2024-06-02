@@ -5,13 +5,15 @@ import { defineSchedule } from "../store/scheduleStore.js"
 import { definePatient } from '../store/patientStore';
 import { defineDocter } from '../store/docterStore.js';
 import { defineAdmin } from '../store/adminStore.js';
-
+import { definePatientSchedule } from '../store/patientScheduleStore'
 
 let sysUser = defineUser()
 let schedule = defineSchedule()
 let sysPatient = definePatient()
 let sysDocter = defineDocter()
 let sysAdmin = defineAdmin()
+let patientSchedule = definePatientSchedule()
+
 
 import { useRouter } from 'vue-router'
 let router = useRouter()
@@ -23,6 +25,7 @@ function logout() {
   sysPatient.$reset()
   sysDocter.$reset()
   schedule.$reset()
+  patientSchedule.$reset()
   // 跳转到登录页
   router.push("/login")
 }
@@ -45,10 +48,10 @@ function logout() {
 
       <div class="optionDiv" v-else>
         欢迎 {{ sysUser.username }}
+        <router-link to="/changePwd">
+          <button class="b1b">修改账户密码</button>
+        </router-link>
         <button class="b1b" @click="logout()">退出登录</button>
-        <!-- <router-link to="/showSchedule">
-          <button class="b1b">查看我的日程</button>
-        </router-link> -->
       </div>
 
       <br>

@@ -27,7 +27,6 @@ export const definePatientSchedule = defineStore(
                     title: "主任", //医生的职称
                     office: "精神科", //医生所属科室
                     },
-                    
                 ]
             }
         },

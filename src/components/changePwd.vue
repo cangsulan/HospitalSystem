@@ -6,36 +6,17 @@ import request from '../utils/request'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
-let registUser = reactive({
-    username: "",//账户的用户名
+let newPwd = reactive({
     userPwd: "",//密码
-    userRole: "patient",//身份
 })
 
-let usernameMsg = ref('')
 let userPwdMsg = ref('')
 let reUserPwdMsg = ref('')
 let reUserPwd = ref('')
 
-async function checkUsername() {
-    let usernameReg = /^[a-zA-Z0-9]{5,10}$/
-    if (!usernameReg.test(registUser.username)) {
-        usernameMsg.value = "格式有误"
-        return false
-    }
-    // 发送异步请求   继续校验用户名是否被占用
-    let { data } = await request.post(`user/checkUsernameUsed?username=${registUser.username}`)
-    if (data.code != 200) {
-        usernameMsg.value = "用户名占用"
-        return false
-    }
-    usernameMsg.value = "可用"
-    return true
-}
-
 async function checkUserPwd() {
     let userPwdReg = /^[0-9]{6}$/
-    if (!userPwdReg.test(registUser.userPwd)) {
+    if (!userPwdReg.test(newPwd.userPwd)) {
         userPwdMsg.value = "格式有误"
         return false
     }
@@ -49,7 +30,7 @@ async function checkReUserPwd() {
         reUserPwdMsg.value = "格式有误"
         return false
     }
-    if (registUser.userPwd != reUserPwd.value) {
+    if (newPwd.userPwd != reUserPwd.value) {
         reUserPwdMsg.value = "两次密码不一致"
         return false
     }
@@ -60,17 +41,18 @@ async function checkReUserPwd() {
 // 注册的方法
 async function regist() {
     // 校验所有的输入框是否合法
-    let flag1 = await checkUsername()
     let flag2 = await checkUserPwd()
     let flag3 = await checkReUserPwd()
-    if (flag1 && flag2 && flag3) {
+    if (flag2 && flag3) {
+
+        //这里记得改一下发送的请求
         let { data } = await request.post("user/regist", registUser)
         if (data.code == 200) {
             // 注册成功跳转 登录页
-            alert("注册成功,快去登录吧")
+            alert("修改成功,请重新登陆!")
             router.push("/login")
         } else {
-            alert("抱歉,用户名被抢注了")
+            alert("抱歉,出错了")
         }
     } else {
         alert("校验不通过,请求再次检查数据")
@@ -78,13 +60,10 @@ async function regist() {
 }
 
 function clearForm() {
-    registUser.username = ""
-    registUser.userPwd = ""
-    usernameMsg.value = ""
+    newPwd.userPwd = ""
     userPwdMsg.value = ""
     reUserPwd.value = ""
     reUserPwdMsg.value = ""
-    registUser.userRole = "patient"
 }
 
 
@@ -92,47 +71,28 @@ function clearForm() {
 
 <template>
     <div>
-        <h3 class="ht">请注册</h3>
+        <h3 class="ht">请修改密码</h3>
         <h5 class="ht">注意！密码请设置为6位数字</h5>
         <table class="tab" cellspacing="0px">
             <tr class="ltr">
-                <td>请输入账号</td>
+                <td>输入新的密码</td>
                 <td>
-                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.username"
-                        @blur="checkUsername()">
-
-                    <span id="usernameMsg" class="msg" v-text="usernameMsg"></span>
-                </td>
-            </tr>
-            <tr class="ltr">
-                <td>请输入密码</td>
-                <td>
-                    <input class="ipt" id="userPwdInput" type="password" name="userPwd" v-model="registUser.userPwd"
+                    <input class="ipt" id="userPwdInput" type="password" name="userPwd" v-model="newPwd.userPwd"
                         @blur="checkUserPwd()">
                     <span id="userPwdMsg" class="msg" v-text="userPwdMsg"></span>
                 </td>
             </tr>
             <tr class="ltr">
-                <td>确认密码</td>
+                <td>确认新的密码</td>
                 <td>
                     <input class="ipt" id="reUserPwdInput" type="password" v-model="reUserPwd" @blur="checkReUserPwd()">
                     <span id="reUserPwdMsg" class="msg" v-text="reUserPwdMsg"></span>
                 </td>
             </tr>
-            <tr>
-                <td>您的身份</td>
-                <td>
-                    <input type="radio" name="userRole" v-model="registUser.userRole" value="doctor">医生
-                    <input type="radio" name="userRole" v-model="registUser.userRole" value="patient">患者
-                </td>
-            </tr>
             <tr class="ltr">
                 <td colspan="2" class="buttonContainer">
-                    <input class="btn1" type="button" @click="regist()" value="注册">
-                    <input class="btn1" type="button" @click="clearForm()" value="重置">
-                    <router-link to="/login">
-                        <button class="btn1">去登录</button>
-                    </router-link>
+                    <input class="btn1" type="button" @click="regist()" value="修改">
+                    <input class="btn1" type="button" @click="clearForm()" value="重置输入">
                 </td>
             </tr>
         </table>
@@ -167,7 +127,7 @@ function clearForm() {
 .btn1 {
     border: 2px solid powderblue;
     border-radius: 4px;
-    width: 60px;
+    width: 80px;
     background-color: antiquewhite;
 
 }

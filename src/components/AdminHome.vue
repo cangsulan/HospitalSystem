@@ -54,6 +54,37 @@ async function changeMsg() {
         </td>
       </tr>
     </table>
+    <br>
+    <hr>
+    <div style="text-align: center;">
+      <h3 class="ht">管理员可供操作</h3>
+      <table class="tab" cellspacing="0px">
+        <tr class="ltr">
+          <td>操作1</td>
+          <td colspan="2" class="buttonContainer">
+            <router-link to="/checkRegist">
+              <button id="registration">审核注册申请</button>
+            </router-link>
+          </td>
+        </tr>
+        <tr class="ltr">
+          <td>操作2</td>
+          <td colspan="2" class="buttonContainer">
+            <router-link to="/checkSchedule">
+              <button id="registration">审核出诊申请</button>
+            </router-link>
+          </td>
+        </tr>
+        <tr class="ltr">
+          <td>操作3</td>
+          <td colspan="2" class="buttonContainer">
+            <router-link to="/findUser">
+              <button id="registration">查询或修改<br>系统用户信息</button>
+            </router-link>
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -95,5 +126,14 @@ async function changeMsg() {
 
 .buttonContainer {
   text-align: center;
+}
+
+#registration {
+  border: 2px solid powderblue;
+  border-radius: 4px;
+  height: 50px;
+  width: 100px;
+  background-color: antiquewhite;
+
 }
 </style>
