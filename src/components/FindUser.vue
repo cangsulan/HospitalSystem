@@ -1,9 +1,10 @@
 <script setup>
 /* 导入pinia数据 */
 import { defineUser } from '../store/userStore.js'
-import { defineSchedule } from '../store/scheduleStore.js'
+
+
 let sysUser = defineUser()
-let schedule = defineSchedule()
+
 
 import { ref, reactive, onUpdated, onMounted } from 'vue'
 import request from '../utils/request'
@@ -115,7 +116,8 @@ async function removeItem(index) {
     border: 1px solid powderblue;
     text-align: center;
 }
-.ltr td input{
+
+.ltr td input {
     width: 30px;
 }
 

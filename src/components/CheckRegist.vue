@@ -3,9 +3,7 @@
 import { defineUser } from '../store/userStore.js'
 let sysUser = defineUser()
 import { defineUserList } from '../store/userListStore.js'
-
-
-
+let userList = defineUserList()
 
 
 import { ref, reactive, onUpdated, onMounted } from 'vue'
@@ -13,44 +11,37 @@ import request from '../utils/request'
 
 //挂载完毕后,立刻查询当前用户的所有日程信息,赋值给pinia
 onMounted(async () => {
-    showSchedule()
+    showUserList()
 })
-// 查询当前用户所有日程信息 并展示到视图的方法
-async function showSchedule() {
-    // 发送异步请求,获得当前用户的所有日程记录
-    let { data } = await request.get("schedule/findAllSchedule", { params: { "uid": sysUser.uid } })
-    schedule.itemList = data.data.itemList
+
+
+async function showUserList() {
+    // 发送异步请求,获得当前待审核的所有信息
+    let { data } = await request.get("schedule/findAllSchedule")
+    userList.itemList = data.data.itemList
 }
-// 为当前用户增加一个空的日程记录
-async function addItem() {
-    let { data } = await request.get('schedule/addDefaultSchedule', { params: { "uid": sysUser.uid } })
+
+async function agree(index) {
+    let { data } = await request.post("schedule/updateSchedule", userList.itemList[index])
     if (data.code == 200) {
-        // 增加成功,刷新页面数据
-        showSchedule()
+        alert("操作成功")
+        //刷新界面
+        location.reload();
     } else {
-        alert("增加失败")
+        alert("操作失败");
+        location.reload();
     }
 }
 
-async function updateItem(index) {
-    // 找到要修改的数据 发送给服务端,更新进入数据库即可
-    let { data } = await request.post("schedule/updateSchedule", schedule.itemList[index])
+async function disagree(index) {
+    let { data } = await request.post("schedule/updateSchedule", userList.itemList[index])
     if (data.code == 200) {
-        showSchedule()
-        alert("更新成功")
+        alert("操作成功")
+        //刷新界面
+        location.reload();
     } else {
-        alert("更新失败")
-    }
-}
-
-async function removeItem(index) {
-    let sid = schedule.itemList[index].sid
-    let { data } = await request.get(`schedule/removeSchedule`, { params: { "sid": sid } })
-    if (data.code == 200) {
-        showSchedule()
-        alert("删除成功")
-    } else {
-        alert("删除失败")
+        alert("操作失败");
+        location.reload();
     }
 }
 
@@ -61,39 +52,28 @@ async function removeItem(index) {
 
 <template>
     <div>
-        <h3 class="ht">您的出诊日程如下</h3>
+        <h3 class="ht">待审核账号如下</h3>
         <table class="tab" cellspacing="0px">
             <tr class="ltr">
-                <th>出诊时间</th>
-                <th>挂号数量</th>
-                <th>审核进度</th>
-                <th>操作</th>
+                <th>账号名</th>
+                <th>身份</th>
+                <th>真实姓名</th>
+                <th>身份证号</th>
+                <th>住址</th>
+                <th>联系电话</th>
+                <th>审核操作</th>
             </tr>
-            <tr class="ltr" v-for="item, index in schedule.itemList" :key="index">
-                <td>
-                    <input type="text" v-model="item.year">年
-                    <input type="text" v-model="item.month">月
-                    <input type="text" v-model="item.day">日
-                    <select name="time" id="time" v-model="item.time">
-                        <option value="上午">上午</option>
-                        <option value="下午">下午</option>
-                        <option value="晚上">晚上</option>
-                    </select>
-                </td>
-                <td>
-                    <input type="text" v-model="item.count">
-                </td>
-                <td>{{ item.checked }}</td>
+            <tr class="ltr" v-for="item, index in userList.itemList" :key="index">
+                <td>{{ item.username }}</td>
+                <td>{{ item.userRole }}</td>
+                <td>{{ item.realName }}</td>
+                <td>{{ item.idCard }}</td>
+                <td>{{ item.address }}</td>
+                <td>{{ item.phone }}</td>
                 <td class="buttonContainer">
-                    <button class="btn1" @click="removeItem(index)">删除</button>
-                    <button class="btn1" @click="updateItem(index)">保存修改</button>
+                    <button class="btn1" @click="agree(index)">通过</button>
+                    <button class="btn1" @click="disagree(index)">否决</button>
                 </td>
-            </tr>
-            <tr class="ltr buttonContainer">
-                <td colspan="4">
-                    <button class="btn1" @click="addItem()">新增日程</button>
-                </td>
-
             </tr>
         </table>
     </div>
@@ -107,7 +87,7 @@ async function removeItem(index) {
 }
 
 .tab {
-    width: 80%;
+    width: 90%;
     border: 5px solid cadetblue;
     margin: 0px auto;
     border-radius: 5px;
@@ -132,7 +112,7 @@ async function removeItem(index) {
 .btn1 {
     border: 2px solid powderblue;
     border-radius: 4px;
-    width: 100px;
+    width: 80px;
     background-color: antiquewhite;
 
 }

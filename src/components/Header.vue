@@ -18,6 +18,20 @@ let patientSchedule = definePatientSchedule()
 import { useRouter } from 'vue-router'
 let router = useRouter()
 
+function goHome() {
+  if (sysUser.userRole == "patient") {
+    router.push("/patienthome");
+  } else if (sysUser.userRole == "doctor") {
+    router.push("/docterhome");
+  } else if (sysUser.userRole == "admin") {
+    if (sysUser.username == "admin" && sysUser.userPwd == "admin") {
+      router.push("/changePwd");
+    } else {
+      router.push("/adminhome");
+    }
+  }
+}
+
 function logout() {
   // 清除所有pinia数据
   sysUser.$reset()
@@ -51,6 +65,7 @@ function logout() {
         <router-link to="/changePwd">
           <button class="b1b">修改账户密码</button>
         </router-link>
+        <button class="b1b" @click="goHome()">用户主页</button>
         <button class="b1b" @click="logout()">退出登录</button>
       </div>
 
@@ -82,7 +97,7 @@ function logout() {
 }
 
 .optionDiv {
-  width: 400px;
+  width: 500px;
   float: right;
 }
 </style>

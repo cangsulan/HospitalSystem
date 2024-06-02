@@ -10,12 +10,29 @@ let registUser = reactive({
     username: "",//账户的用户名
     userPwd: "",//密码
     userRole: "patient",//身份
+    userIdCard: "",//身份证号
+    userRealName: "",//真实姓名
+    userAddress: "",//住址
+    userPhone: "",//联系电话
+
 })
 
 let usernameMsg = ref('')
 let userPwdMsg = ref('')
 let reUserPwdMsg = ref('')
 let reUserPwd = ref('')
+let userIdCardMsg = ref('')
+
+
+async function checkUserIdCard() {
+    let userIdCardReg = /^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
+    if (!userIdCardReg.test(registUser.userIdCard)) {
+        userIdCardMsg.value = "格式有误"
+        return false
+    }
+    userIdCardMsg.value = "OK"
+    return true
+}
 
 async function checkUsername() {
     let usernameReg = /^[a-zA-Z0-9]{5,10}$/
@@ -23,18 +40,18 @@ async function checkUsername() {
         usernameMsg.value = "格式有误"
         return false
     }
-    // 发送异步请求   继续校验用户名是否被占用
-    let { data } = await request.post(`user/checkUsernameUsed?username=${registUser.username}`)
-    if (data.code != 200) {
-        usernameMsg.value = "用户名占用"
-        return false
-    }
-    usernameMsg.value = "可用"
+    // // 发送异步请求   继续校验用户名是否被占用
+    // let { data } = await request.post(`user/checkUsernameUsed?username=${registUser.username}`)
+    // if (data.code != 200) {
+    //     usernameMsg.value = "用户名占用"
+    //     return false
+    // }
+    usernameMsg.value = "OK"
     return true
 }
 
 async function checkUserPwd() {
-    let userPwdReg = /^[0-9]{6}$/
+    let userPwdReg = /^[a-zA-Z0-9]{6,16}$/
     if (!userPwdReg.test(registUser.userPwd)) {
         userPwdMsg.value = "格式有误"
         return false
@@ -44,7 +61,7 @@ async function checkUserPwd() {
 }
 
 async function checkReUserPwd() {
-    let userPwdReg = /^[0-9]{6}$/
+    let userPwdReg = /^[a-zA-Z0-9]{6,16}$/
     if (!userPwdReg.test(reUserPwd.value)) {
         reUserPwdMsg.value = "格式有误"
         return false
@@ -63,7 +80,8 @@ async function regist() {
     let flag1 = await checkUsername()
     let flag2 = await checkUserPwd()
     let flag3 = await checkReUserPwd()
-    if (flag1 && flag2 && flag3) {
+    let flag4 = await checkUserIdCard()
+    if (flag1 && flag2 && flag3 && flag4) {
         let { data } = await request.post("user/regist", registUser)
         if (data.code == 200) {
             // 注册成功跳转 登录页
@@ -85,6 +103,12 @@ function clearForm() {
     reUserPwd.value = ""
     reUserPwdMsg.value = ""
     registUser.userRole = "patient"
+    registUser.userAddress = ""
+    registUser.userPhone = ""
+    registUser.userIdCard = ""
+    registUser.userRealName = ""
+    userIdCardMsg.value = ""
+
 }
 
 
@@ -93,7 +117,7 @@ function clearForm() {
 <template>
     <div>
         <h3 class="ht">请注册</h3>
-        <h5 class="ht">注意！密码请设置为6位数字</h5>
+        <h5 class="ht">注意!密码长度为6-16位,不包含特殊符号</h5>
         <table class="tab" cellspacing="0px">
             <tr class="ltr">
                 <td>请输入账号</td>
@@ -119,9 +143,39 @@ function clearForm() {
                     <span id="reUserPwdMsg" class="msg" v-text="reUserPwdMsg"></span>
                 </td>
             </tr>
+
+            <tr class="ltr">
+                <td>身份证号</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.userIdCard"
+                        @blur="checkUserIdCard()">
+                    <span id="usernameMsg" class="msg" v-text="userIdCardMsg"></span>
+                </td>
+            </tr>
+            <tr class="ltr">
+                <td>真实姓名</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.userRealName">
+                </td>
+            </tr>
+            <tr class="ltr">
+                <td>联系电话</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.userPhone">
+                </td>
+            </tr>
+            <tr class="ltr">
+                <td>住址</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.userAddress">
+                </td>
+            </tr>
+
+
             <tr>
                 <td>您的身份</td>
                 <td>
+                    <input type="radio" name="userRole" v-model="registUser.userRole" value="admin">管理员
                     <input type="radio" name="userRole" v-model="registUser.userRole" value="doctor">医生
                     <input type="radio" name="userRole" v-model="registUser.userRole" value="patient">患者
                 </td>

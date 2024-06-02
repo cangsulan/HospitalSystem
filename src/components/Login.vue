@@ -26,7 +26,7 @@ function checkUsername() {
 }
 
 function checkUserPwd() {
-    let userPwdReg = /^[0-9]{6}$/;
+    let userPwdReg = /^[a-zA-Z0-9]{6,16}$/;
 
     if (!userPwdReg.test(loginUser.userPwd)) {
         userPwdMsg.value = "格式有误";
@@ -48,15 +48,19 @@ async function login() {
     if (data.code == 200) {
         alert("登录成功");
         console.log(data);
-        // 获得登录的用户信息,更新到pinia中
+        // 获得登录的用户信息,更新到pinia中,这里我只要后续有用的信息，所以不要提供密码
         sysUser.uid = data.data.loginUser.uid;
         sysUser.username = data.data.loginUser.username;
         sysUser.userRole = data.data.loginUser.userRole;
-        sysUser.userPwd = data.data.loginUser.userPwd;
         sysUser.userChecked = data.data.loginUser.userChecked;
 
-        //这里做一下判定，看账户有没有通过审核
 
+
+        sysUser.userPwd = loginUser.userPwd;
+        if (sysUser.username == "admin" && sysUser.userPwd == "admin") {
+            router.push("/changePwd");
+        }
+        //这里做一下判定，看账户有没有通过审核，这块先交给后端判定
         //根据用户身份来跳转：
         if (sysUser.userRole == "patient") {
             router.push("/patienthome");
@@ -65,10 +69,12 @@ async function login() {
         } else if (sysUser.userRole == "admin") {
             router.push("/adminhome");
         }
-    } else if (data.code == 503) {
-        alert("密码有误");
     } else if (data.code == 501) {
+        alert("密码有误");
+    } else if (data.code == 502) {
         alert("用户名有误");
+    } else if (data.code == 503) {
+        alert("账户还未通过审核");
     } else {
         alert("未知错误");
     }
