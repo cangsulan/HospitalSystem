@@ -18,6 +18,9 @@ import CheckRegist from '../components/CheckRegist.vue'
 import CheckSchedule from '../components/CheckSchedule.vue'
 import ChangeUser from '../components/ChangeUser.vue'
 import FindUser from '../components/FindUser.vue'
+import ShowAdminLog from '../components/ShowAdminLog.vue'
+
+
 
 import pinia from '../pinia.js'
 import {
@@ -75,16 +78,20 @@ const router = createRouter({
         },
         {
             path: "/checkSchedule",
-            component:CheckSchedule
+            component: CheckSchedule
         },
         {
             path: "/changeUser",
-            component:ChangeUser
+            component: ChangeUser
         },
         {
             path: "/findUser",
-            component:FindUser
+            component: FindUser
         },
+        {
+            path: "/showAdminLog",
+            component: ShowAdminLog
+        }
     ]
 })
 

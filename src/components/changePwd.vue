@@ -15,7 +15,7 @@ let reUserPwdMsg = ref('')
 let reUserPwd = ref('')
 
 async function checkUserPwd() {
-    let userPwdReg = /^[0-9]{6}$/
+    let userPwdReg = /^[a-zA-Z0-9]{6,16}$/
     if (!userPwdReg.test(newPwd.userPwd)) {
         userPwdMsg.value = "格式有误"
         return false
@@ -25,7 +25,7 @@ async function checkUserPwd() {
 }
 
 async function checkReUserPwd() {
-    let userPwdReg = /^[0-9]{6}$/
+    let userPwdReg = /^[a-zA-Z0-9]{6,16}$/
     if (!userPwdReg.test(reUserPwd.value)) {
         reUserPwdMsg.value = "格式有误"
         return false
@@ -120,7 +120,7 @@ function clearForm() {
 
 .ipt {
     border: 0px;
-    width: 50%;
+    width: 60%;
 
 }
 

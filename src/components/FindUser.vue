@@ -1,97 +1,123 @@
 <script setup>
 /* 导入pinia数据 */
 import { defineUser } from '../store/userStore.js'
-
-
 let sysUser = defineUser()
-
+import { defineUserList } from '../store/userListStore.js';
+let userList = defineUserList()
+import { defineFindUser } from '../store/findUserStore.js';
+let findUser = defineFindUser();
 
 import { ref, reactive, onUpdated, onMounted } from 'vue'
 import request from '../utils/request'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
-//挂载完毕后,立刻查询当前用户的所有日程信息,赋值给pinia
-onMounted(async () => {
-    showSchedule()
+let option = ref(1)
+let input = reactive({
+    username: "",
+    idCard: "",
+    realName: "",
 })
-// 查询当前用户所有日程信息 并展示到视图的方法
-async function showSchedule() {
-    // 发送异步请求,获得当前用户的所有日程记录
-    let { data } = await request.get("schedule/findAllSchedule", { params: { "uid": sysUser.uid } })
-    schedule.itemList = data.data.itemList
-}
-// 为当前用户增加一个空的日程记录
-async function addItem() {
-    let { data } = await request.get('schedule/addDefaultSchedule', { params: { "uid": sysUser.uid } })
-    if (data.code == 200) {
-        // 增加成功,刷新页面数据
-        showSchedule()
-    } else {
-        alert("增加失败")
-    }
-}
 
-async function updateItem(index) {
-    // 找到要修改的数据 发送给服务端,更新进入数据库即可
-    let { data } = await request.post("schedule/updateSchedule", schedule.itemList[index])
-    if (data.code == 200) {
-        showSchedule()
-        alert("更新成功")
-    } else {
-        alert("更新失败")
-    }
+let canShow = ref(true)
+
+async function findUser1() {
+    //每次find前,要先清空userList
+    userList.$reset();
+    //根据input.username
+}
+async function findUser2() {
+    userList.$reset();
+    //根据input.realName
+}
+async function findUser3() {
+    userList.$reset();
+    //根据input.idCard
 }
 
-async function removeItem(index) {
-    let sid = schedule.itemList[index].sid
-    let { data } = await request.get(`schedule/removeSchedule`, { params: { "sid": sid } })
-    if (data.code == 200) {
-        showSchedule()
-        alert("删除成功")
-    } else {
-        alert("删除失败")
-    }
+async function changeUser(index) {
+    //要向后端索要这个用户的所有信息，保存到findUserStore中
+
+    //然后，路由到changeUser
+
+    router.push("/changeUser");
 }
 
+async function removeUser(index) {
+    //告诉后端要删除这个用户账号
 
-
+    //然后刷新页面
+    location.reload();
+}
 
 </script>
 
 <template>
     <div>
-        <h3 class="ht">您的出诊日程如下</h3>
+        <h3 class="ht">查询系统用户</h3>
         <table class="tab" cellspacing="0px">
             <tr class="ltr">
-                <th>出诊时间</th>
-                <th>挂号数量</th>
-                <th>审核进度</th>
+                <td>选择查询方式</td>
+                <td>
+                    <input type="radio" name="option" value="1" v-model="option">账号名
+                    <input type="radio" name="option" value="2" v-model="option">真实姓名
+                    <input type="radio" name="option" value="3" v-model="option">身份证号
+                </td>
+            </tr>
+            <tr class="ltr" v-if="option == 1">
+                <td>输入账号名</td>
+                <td>
+                    <input type="text" class="ipt" v-model="input.username" />
+                </td>
+                <td class="buttonContainer">
+                    <button class="btn1" @click="findUser1()">查询</button>
+                </td>
+            </tr>
+            <tr class="ltr" v-if="option == 2">
+                <td>输入姓名</td>
+                <td>
+                    <input type="text" class="ipt" v-model="input.realName" />
+                </td>
+                <td class="buttonContainer">
+                    <button class="btn1" @click="findUser2()">查询</button>
+                </td>
+            </tr>
+            <tr class="ltr" v-if="option == 3">
+                <td>输入身份证号</td>
+                <td>
+                    <input type="text" class="ipt" v-model="input.idCard" />
+                </td>
+                <td class="buttonContainer">
+                    <button class="btn1" @click="findUser3()">查询</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div v-if="canShow">
+        <br>
+        <hr>
+        <h3 class="ht">查询结果</h3>
+        <table class="tab2" cellspacing="0px">
+            <tr class="ltr">
+                <th>账号名</th>
+                <th>身份</th>
+                <th>真实姓名</th>
+                <th>身份证号</th>
+                <th>住址</th>
+                <th>联系电话</th>
                 <th>操作</th>
             </tr>
-            <tr class="ltr" v-for="item, index in schedule.itemList" :key="index">
-                <td>
-                    <input type="text" v-model="item.year">年
-                    <input type="text" v-model="item.month">月
-                    <input type="text" v-model="item.day">日
-                    <select name="time" id="time" v-model="item.time">
-                        <option value="上午">上午</option>
-                        <option value="下午">下午</option>
-                        <option value="晚上">晚上</option>
-                    </select>
-                </td>
-                <td>
-                    <input type="text" v-model="item.count">
-                </td>
-                <td>{{ item.checked }}</td>
+            <tr class="ltr" v-for="item, index in userList.itemList" :key="index">
+                <td>{{ item.username }}</td>
+                <td>{{ item.userRole }}</td>
+                <td>{{ item.realName }}</td>
+                <td>{{ item.idCard }}</td>
+                <td>{{ item.address }}</td>
+                <td>{{ item.phone }}</td>
                 <td class="buttonContainer">
-                    <button class="btn1" @click="removeItem(index)">删除</button>
-                    <button class="btn1" @click="updateItem(index)">保存修改</button>
+                    <button class="btn1" @click="changeUser(index)">修改<br>详细信息</button>
+                    <button class="btn1" @click="removeUser(index)">删除<br>用户账号</button>
                 </td>
-            </tr>
-            <tr class="ltr buttonContainer">
-                <td colspan="4">
-                    <button class="btn1" @click="addItem()">新增日程</button>
-                </td>
-
             </tr>
         </table>
     </div>
@@ -105,7 +131,15 @@ async function removeItem(index) {
 }
 
 .tab {
-    width: 80%;
+    width: 600px;
+    border: 5px solid cadetblue;
+    margin: 0px auto;
+    border-radius: 5px;
+    font-family: 幼圆;
+}
+
+.tab2 {
+    width: 860px;
     border: 5px solid cadetblue;
     margin: 0px auto;
     border-radius: 5px;
@@ -114,25 +148,18 @@ async function removeItem(index) {
 
 .ltr td {
     border: 1px solid powderblue;
-    text-align: center;
-}
-
-.ltr td input {
-    width: 30px;
 }
 
 .ipt {
     border: 0px;
-    width: 50%;
-
+    width: 99%;
 }
 
 .btn1 {
     border: 2px solid powderblue;
     border-radius: 4px;
-    width: 100px;
+    width: 70px;
     background-color: antiquewhite;
-
 }
 
 #usernameMsg,
@@ -142,5 +169,13 @@ async function removeItem(index) {
 
 .buttonContainer {
     text-align: center;
+}
+
+#registration {
+    border: 2px solid powderblue;
+    border-radius: 4px;
+    width: 100px;
+    background-color: antiquewhite;
+
 }
 </style>

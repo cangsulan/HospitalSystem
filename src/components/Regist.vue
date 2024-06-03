@@ -214,7 +214,7 @@ function clearForm() {
 
 .ipt {
     border: 0px;
-    width: 50%;
+    width: 60%;
 
 }
 

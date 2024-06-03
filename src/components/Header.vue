@@ -6,6 +6,7 @@ import { definePatient } from '../store/patientStore';
 import { defineDocter } from '../store/docterStore.js';
 import { defineAdmin } from '../store/adminStore.js';
 import { definePatientSchedule } from '../store/patientScheduleStore'
+import { defineUserList } from "../store/userListStore.js";
 
 let sysUser = defineUser()
 let schedule = defineSchedule()
@@ -13,7 +14,7 @@ let sysPatient = definePatient()
 let sysDocter = defineDocter()
 let sysAdmin = defineAdmin()
 let patientSchedule = definePatientSchedule()
-
+let userList = defineUserList()
 
 import { useRouter } from 'vue-router'
 let router = useRouter()
@@ -40,6 +41,7 @@ function logout() {
   sysDocter.$reset()
   schedule.$reset()
   patientSchedule.$reset()
+  userList.$reset()
   // 跳转到登录页
   router.push("/login")
 }

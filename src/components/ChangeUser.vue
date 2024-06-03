@@ -1,94 +1,193 @@
 <script setup>
 /* 导入pinia数据 */
 import { defineUser } from '../store/userStore.js'
-import { defineSchedule } from '../store/scheduleStore.js'
 let sysUser = defineUser()
-let schedule = defineSchedule()
+import { defineFindUser } from '../store/findUserStore.js';
+let findUser = defineFindUser()
 
 import { ref, reactive, onUpdated, onMounted } from 'vue'
 import request from '../utils/request'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
-//挂载完毕后,立刻查询当前用户的所有日程信息,赋值给pinia
-onMounted(async () => {
-    showSchedule()
-})
-// 查询当前用户所有日程信息 并展示到视图的方法
-async function showSchedule() {
-    // 发送异步请求,获得当前用户的所有日程记录
-    let { data } = await request.get("schedule/findAllSchedule", { params: { "uid": sysUser.uid } })
-    schedule.itemList = data.data.itemList
-}
-// 为当前用户增加一个空的日程记录
-async function addItem() {
-    let { data } = await request.get('schedule/addDefaultSchedule', { params: { "uid": sysUser.uid } })
-    if (data.code == 200) {
-        // 增加成功,刷新页面数据
-        showSchedule()
+
+
+let usernameMsg = ref('')
+let userPwdMsg = ref('')
+let userIdCardMsg = ref('')
+
+async function changeMsg() {
+    let flag1 = await checkUsername()
+    let flag2 = await checkUserPwd()
+    let flag3 = await checkUserIdCard()
+    if (flag1 && flag2 && flag3) {
+        let { data } = await request.post("/admin/changeMsg", findUser);
+        if (data.code == 200) {
+            alert("修改成功")
+        } else {
+            alert("修改失败")
+        }
+        location.reload();
     } else {
-        alert("增加失败")
+        alert("校验不通过,请求再次检查数据")
     }
-}
 
-async function updateItem(index) {
-    // 找到要修改的数据 发送给服务端,更新进入数据库即可
-    let { data } = await request.post("schedule/updateSchedule", schedule.itemList[index])
-    if (data.code == 200) {
-        showSchedule()
-        alert("更新成功")
-    } else {
-        alert("更新失败")
-    }
-}
-
-async function removeItem(index) {
-    let sid = schedule.itemList[index].sid
-    let { data } = await request.get(`schedule/removeSchedule`, { params: { "sid": sid } })
-    if (data.code == 200) {
-        showSchedule()
-        alert("删除成功")
-    } else {
-        alert("删除失败")
-    }
 }
 
 
 
 
+async function checkUserIdCard() {
+    let userIdCardReg = /^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
+    if (!userIdCardReg.test(findUser.userIdCard)) {
+        userIdCardMsg.value = "格式有误"
+        return false
+    }
+    userIdCardMsg.value = "OK"
+    return true
+}
+
+async function checkUsername() {
+    let usernameReg = /^[a-zA-Z0-9]{5,10}$/
+    if (!usernameReg.test(findUser.username)) {
+        usernameMsg.value = "格式有误"
+        return false
+    }
+    // // 发送异步请求   继续校验用户名是否被占用
+    // let { data } = await request.post(`user/checkUsernameUsed?username=${registUser.username}`)
+    // if (data.code != 200) {
+    //     usernameMsg.value = "用户名占用"
+    //     return false
+    // }
+    usernameMsg.value = "OK"
+    return true
+}
+
+async function checkUserPwd() {
+    let userPwdReg = /^[a-zA-Z0-9]{6,16}$/
+    if (!userPwdReg.test(findUser.userPwd)) {
+        userPwdMsg.value = "格式有误"
+        return false
+    }
+    userPwdMsg.value = "OK"
+    return true
+}
+
+function getback() {
+    router.push("/findUser");
+}
 </script>
 
 <template>
     <div>
-        <h3 class="ht">您的出诊日程如下</h3>
+        <h3 class="ht">用户信息</h3>
+        <!-- 先显示出基本信息 -->
         <table class="tab" cellspacing="0px">
             <tr class="ltr">
-                <th>出诊时间</th>
-                <th>挂号数量</th>
-                <th>审核进度</th>
-                <th>操作</th>
-            </tr>
-            <tr class="ltr" v-for="item, index in schedule.itemList" :key="index">
+                <td>账号名</td>
                 <td>
-                    <input type="text" v-model="item.year">年
-                    <input type="text" v-model="item.month">月
-                    <input type="text" v-model="item.day">日
-                    <select name="time" id="time" v-model="item.time">
-                        <option value="上午">上午</option>
-                        <option value="下午">下午</option>
-                        <option value="晚上">晚上</option>
-                    </select>
-                </td>
-                <td>
-                    <input type="text" v-model="item.count">
-                </td>
-                <td>{{ item.checked }}</td>
-                <td class="buttonContainer">
-                    <button class="btn1" @click="removeItem(index)">删除</button>
-                    <button class="btn1" @click="updateItem(index)">保存修改</button>
+                    <input class="ipt" type="text" v-model="findUser.username" @blur="checkUsername()">
+                    <span id="usernameMsg" class="msg" v-text="usernameMsg"></span>
                 </td>
             </tr>
-            <tr class="ltr buttonContainer">
-                <td colspan="4">
-                    <button class="btn1" @click="addItem()">新增日程</button>
+            <tr class="ltr">
+                <td>密码</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.userPwd" @blur="checkUserPwd()">
+                    <span id="userPwdMsg" class="msg" v-text="userPwdMsg"></span>
+                </td>
+
+            </tr>
+            <tr class="ltr">
+                <td>身份</td>
+                <td>
+                    <input type="radio" v-model="findUser.userRole" value="patient">患者
+                    <input type="radio" v-model="findUser.userRole" value="doctor">医生
+                    <input type="radio" v-model="findUser.userRole" value="admin">管理员
+                </td>
+            </tr>
+            <tr class="ltr">
+                <td>真实姓名</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.realName">
+                </td>
+            </tr>
+            <tr class="ltr">
+                <td>身份证号</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.idCard" @blur="checkUserIdCard()">
+                    <span id="userPwdMsg" class="msg" v-text="userIdCardMsg"></span>
+                </td>
+            </tr>
+            <tr class="ltr" v-if="findUser.userRole != 'admin'">
+                <td>年龄</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.age">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="findUser.userRole != 'admin'">
+                <td>性别</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.gender">
+                </td>
+            </tr>
+            <tr class="ltr">
+                <td>审核状态</td>
+                <td>
+                    <input type="radio" v-model="findUser.userChecked" value="已通过">已通过
+                    <input type="radio" v-model="findUser.userChecked" value="被驳回">被驳回
+                    <input type="radio" v-model="findUser.userChecked" value="待审核">待审核
+                </td>
+            </tr>
+            <tr class="ltr">
+                <td>地址</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.address">
+                </td>
+            </tr>
+            <tr class="ltr">
+                <td>联系电话</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.phone">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="findUser.userRole == 'patient'">
+                <td>病历描述</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.medicalHistory">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="findUser.userRole == 'doctor'">
+                <td>所属医院</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.hospital">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="findUser.userRole == 'doctor'">
+                <td>科室</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.office">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="findUser.userRole == 'doctor'">
+                <td>职称</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.title">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="findUser.userRole == 'doctor'">
+                <td>专长</td>
+                <td>
+                    <input class="ipt" type="text" v-model="findUser.speciality">
+                </td>
+            </tr>
+
+
+
+            <tr class="ltr">
+                <td colspan="2" class="buttonContainer">
+                    <input class="btn1" type="button" @click="changeMsg()" value="修改">
+                    <input class="btn1" type="button" @click="getback()" value="返回">
                 </td>
 
             </tr>
@@ -104,7 +203,15 @@ async function removeItem(index) {
 }
 
 .tab {
-    width: 80%;
+    width: 800px;
+    border: 5px solid cadetblue;
+    margin: 0px auto;
+    border-radius: 5px;
+    font-family: 幼圆;
+}
+
+.tab2 {
+    width: 832px;
     border: 5px solid cadetblue;
     margin: 0px auto;
     border-radius: 5px;
@@ -113,24 +220,18 @@ async function removeItem(index) {
 
 .ltr td {
     border: 1px solid powderblue;
-    text-align: center;
-}
-.ltr td input{
-    width: 30px;
 }
 
 .ipt {
     border: 0px;
-    width: 50%;
-
+    width: 86%;
 }
 
 .btn1 {
     border: 2px solid powderblue;
     border-radius: 4px;
-    width: 100px;
+    width: 80px;
     background-color: antiquewhite;
-
 }
 
 #usernameMsg,
@@ -140,5 +241,13 @@ async function removeItem(index) {
 
 .buttonContainer {
     text-align: center;
+}
+
+#registration {
+    border: 2px solid powderblue;
+    border-radius: 4px;
+    width: 100px;
+    background-color: antiquewhite;
+
 }
 </style>

@@ -8,13 +8,36 @@ let sysUser = defineUser()
 let sysDocter = defineDocter()
 
 import request from '../utils/request'
-async function changeMsg() {
-  let { data } = await request.post("/admin/changeMsg", sysDocter);
-  if (data.code == 200) {
-    alert("修改成功")
-  } else {
-    alert("修改失败")
+import { ref } from 'vue'
+
+
+
+let userIdCardMsg = ref('')
+async function checkUserIdCard() {
+  let userIdCardReg = /^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
+  if (!userIdCardReg.test(sysDocter.idCard)) {
+    userIdCardMsg.value = "格式有误"
+    return false
   }
+  userIdCardMsg.value = "OK"
+  return true
+}
+
+
+async function changeMsg() {
+  let flag1 = await checkUserIdCard()
+  if (flag1) {
+    let { data } = await request.post("/admin/changeMsg", sysDocter);
+    if (data.code == 200) {
+      alert("修改成功")
+    } else {
+      alert("修改失败")
+    }
+    location.reload()
+  } else {
+    alert("校验不通过,请求再次检查数据")
+  }
+
 }
 </script>
 
@@ -26,7 +49,8 @@ async function changeMsg() {
       <tr class="ltr">
         <td>身份证号</td>
         <td>
-          <input class="ipt" type="text" v-model="sysDocter.idCard">
+          <input class="ipt" type="text" v-model="sysDocter.idCard" @blur="checkUserIdCard()">
+          <span id="userPwdMsg" class="msg" v-text="userIdCardMsg"></span>
         </td>
       </tr>
       <tr class="ltr">

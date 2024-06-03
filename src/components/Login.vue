@@ -5,6 +5,13 @@ const router = useRouter();
 
 import { defineUser } from "../store/userStore.js";
 let sysUser = defineUser();
+import { definePatient } from "../store/patientStore.js";
+let patient = definePatient();
+import { defineAdmin } from "../store/adminStore.js";
+let admin = defineAdmin();
+import { defineDocter } from "../store/docterStore.js";
+let docter = defineDocter();
+
 import request from "../utils/request";
 
 let loginUser = reactive({
@@ -53,9 +60,11 @@ async function login() {
         sysUser.username = data.data.loginUser.username;
         sysUser.userRole = data.data.loginUser.userRole;
         sysUser.userChecked = data.data.loginUser.userChecked;
-
-
-
+        sysUser.userPwd = data.data.loginUser.userPwd;
+        sysUser.idCard = data.data.loginUser.idCard;
+        sysUser.realName = data.data.loginUser.realName;
+        sysUser.address = data.data.loginUser.address;
+        sysUser.phone = data.data.loginUser.phone;
         sysUser.userPwd = loginUser.userPwd;
         if (sysUser.username == "admin" && sysUser.userPwd == "admin") {
             router.push("/changePwd");
@@ -63,10 +72,34 @@ async function login() {
         //这里做一下判定，看账户有没有通过审核，这块先交给后端判定
         //根据用户身份来跳转：
         if (sysUser.userRole == "patient") {
+            patient.idCard = data.data.loginUser.idCard;
+            patient.realName = data.data.loginUser.realName;
+            patient.age = data.data.loginUser.age;
+            patient.gender = data.data.loginUser.gender;
+            patient.address = data.data.loginUser.address;
+            patient.phone = data.data.loginUser.phone;
+            patient.medicalHistory = data.data.loginUser.medicalHistory;
+
             router.push("/patienthome");
         } else if (sysUser.userRole == "doctor") {
+            docter.idCard = data.data.loginUser.idCard;
+            docter.realName = data.data.loginUser.realName;
+            docter.age = data.data.loginUser.age;
+            docter.gender = data.data.loginUser.gender;
+            docter.address = data.data.loginUser.address;
+            docter.phone = data.data.loginUser.phone;
+            docter.hospital = data.data.loginUser.hospital;
+            docter.office = data.data.loginUser.office;
+            docter.title = data.data.loginUser.title;
+            docter.speciality = data.data.loginUser.speciality;
+
             router.push("/docterhome");
         } else if (sysUser.userRole == "admin") {
+            admin.idCard = data.data.loginUser.idCard;
+            admin.realName = data.data.loginUser.realName;
+            admin.address = data.data.loginUser.address;
+            admin.phone = data.data.loginUser.phone;
+
             router.push("/adminhome");
         }
     } else if (data.code == 501) {
@@ -140,7 +173,7 @@ function clearForm() {
 
 .ipt {
     border: 0px;
-    width: 50%;
+    width: 60%;
 }
 
 .btn1 {
