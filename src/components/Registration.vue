@@ -28,13 +28,13 @@ onMounted(async () => {
 })
 
 async function showPatientSchedule() {
-    // let { data } = await request.get("schedule/findPatientSchedule", { params: { uid: sysUser.uid } })
-    // patientSchedule.itemList = data.data.itemList
+    let { data } = await request.get("schedule/findPatientSchedule", { params: { uid: sysUser.uid } })
+    patientSchedule.itemList = data.data.itemList
 }
 
 async function showSchedule() {
-    // let { data } = await request.get("schedule/findAllSchedule")
-    // schedule.itemList = data.data.itemList
+    let { data } = await request.get("schedule/findAllSchedule")
+    schedule.itemList = data.data.itemList
 }
 
 async function toApply(index) {

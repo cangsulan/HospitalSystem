@@ -26,7 +26,16 @@ async function checkUserIdCard() {
 async function changeMsg() {
   let flag1 = await checkUserIdCard()
   if (flag1) {
-    let { data } = await request.post("/admin/changeMsg", sysAdmin);
+    let { data } = await request.post("/admin/changeMsg", {
+      uid: sysUser.uid,
+      username: sysUser.username,
+      userRole: sysUser.userRole,
+      idCard: sysAdmin.idCard,
+      realName: sysAdmin.realName,
+      address: sysAdmin.address,
+      phone: sysAdmin.phone,
+
+    });
     if (data.code == 200) {
       alert("修改成功")
     } else {

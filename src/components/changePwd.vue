@@ -3,6 +3,10 @@ import { ref, reactive } from 'vue'
 /* 导入发送请求的axios对象 */
 import request from '../utils/request'
 
+import { defineUser } from '../store/userStore';
+let sysUser = defineUser();
+
+
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
@@ -39,14 +43,14 @@ async function checkReUserPwd() {
 }
 
 // 注册的方法
-async function regist() {
+async function changePwd() {
     // 校验所有的输入框是否合法
     let flag2 = await checkUserPwd()
     let flag3 = await checkReUserPwd()
     if (flag2 && flag3) {
 
         //这里记得改一下发送的请求
-        let { data } = await request.post("user/regist", registUser)
+        let { data } = await request.post("user/regist", { params: { newPwd: newPwd.userPwd, username: sysUser.username, uid: sysUser.uid } })
         if (data.code == 200) {
             // 注册成功跳转 登录页
             alert("修改成功,请重新登陆!")
@@ -72,7 +76,7 @@ function clearForm() {
 <template>
     <div>
         <h3 class="ht">请修改密码</h3>
-        <h5 class="ht">注意！密码请设置为6位数字</h5>
+        <h5 class="ht">密码请设置为6-16位,不包含特殊符号</h5>
         <table class="tab" cellspacing="0px">
             <tr class="ltr">
                 <td>输入新的密码</td>
@@ -91,7 +95,7 @@ function clearForm() {
             </tr>
             <tr class="ltr">
                 <td colspan="2" class="buttonContainer">
-                    <input class="btn1" type="button" @click="regist()" value="修改">
+                    <input class="btn1" type="button" @click="changePwd()" value="修改">
                     <input class="btn1" type="button" @click="clearForm()" value="重置输入">
                 </td>
             </tr>

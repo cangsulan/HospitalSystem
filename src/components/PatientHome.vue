@@ -14,7 +14,19 @@ import { ref } from 'vue'
 async function changeMsg() {
   let flag1 = await checkUserIdCard()
   if (flag1) {
-    let { data } = await request.post("/admin/changeMsg", sysPatient);
+    let { data } = await request.post("/admin/changeMsg", {
+      uid: sysUser.uid,
+      username: sysUser.username,
+      userRole: sysUser.userRole,
+      idCard: sysPatient.idCard,
+      realName: sysPatient.realName,
+      age: sysPatient.age,
+      gender: sysPatient.gender,
+      address: sysPatient.address,
+      phone: sysPatient.phone,
+      medicalHistory: sysPatient.medicalHistory,
+
+    });
     if (data.code == 200) {
       alert("修改成功")
     } else {
@@ -42,7 +54,7 @@ async function checkUserIdCard() {
 
 <template>
   <div>
-    <h3 class="ht">病人信息</h3>
+    <h3 class="ht">患者信息</h3>
     <!-- 先显示出病人的基本信息 -->
     <table class="tab" cellspacing="0px">
       <tr class="ltr">

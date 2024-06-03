@@ -16,7 +16,40 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 
+onMounted(async () => {
+    showLogs()
+})
 
+let logIndex = ref(0)
+
+async function showLogs() {
+    //首页，前10条
+    let { data } = await request.get("schedule/findAllSchedule", { params: { "index": 0 } })
+    log.itemList = data.itemList;
+    location.reload();
+}
+
+async function showPreLogs() {
+    //上一页
+    logIndex.value = logIndex.value - 10;
+    if (logIndex.value < 0) {
+        logIndex.value = 0;
+    }
+    let { data } = await request.get("schedule/findAllSchedule", { params: { "index": logIndex.value } })
+    log.itemList = data.itemList;
+    location.reload();
+}
+
+async function showNextLogs() {
+    //下一页，如果到底了的话，这个先交给后端解决
+    logIndex.value = logIndex.value + 10;
+    if (logIndex.value < 0) {
+        logIndex.value = 0;
+    }
+    let { data } = await request.get("schedule/findAllSchedule", { params: { "index": logIndex.value } })
+    log.itemList = data.itemList;
+    location.reload();
+}
 
 </script>
 
@@ -25,14 +58,22 @@ const router = useRouter()
         <h3 class="ht">管理员操作记录如下</h3>
         <table class="tab" cellspacing="0px">
             <tr class="ltr">
-                <td> log描述:</td>
+                <th style="width: 60px;">序号</th>
+                <th> log描述:</th>
             </tr>
             <tr class="ltr" v-for="item, index in log.itemList" :key="index">
+                <td style="text-align: center;">{{ log.itemList[index].id }}</td>
                 <td>
                     {{ log.itemList[index].log }}
                 </td>
             </tr>
         </table>
+        <br>
+        <div style="text-align: center;">
+            <button @click="showLogs()">首页</button>
+            <button style="margin-right: 20px;margin-left:20px;" @click="showPreLogs()">上一页</button>
+            <button @click="showNextLogs()">下一页</button>
+        </div>
     </div>
 </template>
 
@@ -52,7 +93,7 @@ const router = useRouter()
 }
 
 .ltr td {
-    border: 1px solid powderblue;
+    border: 2px solid powderblue;
     text-align: left;
 }
 
