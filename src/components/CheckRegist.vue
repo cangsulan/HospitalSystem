@@ -22,7 +22,11 @@ async function showUserList() {
 }
 
 async function agree(index) {
-    let { data } = await request.post("schedule/updateSchedule", userList.itemList[index])
+    let { data } = await request.post("schedule/updateSchedule", {
+        uid: userList.itemList[index].uid,
+        flag: true,
+
+    })
     if (data.code == 200) {
         alert("操作成功")
         //刷新界面
@@ -34,7 +38,11 @@ async function agree(index) {
 }
 
 async function disagree(index) {
-    let { data } = await request.post("schedule/updateSchedule", userList.itemList[index])
+    let { data } = await request.post("schedule/updateSchedule", {
+        uid: userList.itemList[index].uid,
+        flag: false,
+
+    })
     if (data.code == 200) {
         alert("操作成功")
         //刷新界面

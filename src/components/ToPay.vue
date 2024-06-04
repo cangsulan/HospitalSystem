@@ -32,12 +32,12 @@ let item = reactive({
 
 })
 async function toApply(index) {
-    // let { data } = await request.get("registration/apply", schedule.itemList[index])
-    // if (data.code == 200) {
-    //     alert("挂号成功！");
-    // } else {
-    //     alert("挂号失败，请耐心等待退款......");
-    // }
+    let { data } = await request.post("registration/apply", { uid: sysUser.uid, username: sysUser.username, id: schedule.itemList[index].id })
+    if (data.code == 200) {
+        alert("挂号成功！");
+    } else {
+        alert("挂号失败，请耐心等待退款......");
+    }
     router.push("/registration");
 }
 

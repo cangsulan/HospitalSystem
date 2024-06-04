@@ -16,16 +16,17 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 
+let logLength = log.itemList.length;
+let logIndex = ref(0)
+
 onMounted(async () => {
     showLogs()
 })
 
-let logIndex = ref(0)
-
 async function showLogs() {
     //首页，前10条
     let { data } = await request.get("schedule/findAllSchedule", { params: { "index": 0 } })
-    log.itemList = data.itemList;
+    log.itemList = data.data.itemList;
     location.reload();
 }
 

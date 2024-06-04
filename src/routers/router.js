@@ -19,7 +19,7 @@ import CheckSchedule from '../components/CheckSchedule.vue'
 import ChangeUser from '../components/ChangeUser.vue'
 import FindUser from '../components/FindUser.vue'
 import ShowAdminLog from '../components/ShowAdminLog.vue'
-
+import AddSchedule from '../components/AddSchedule.vue'
 
 
 import pinia from '../pinia.js'
@@ -91,6 +91,10 @@ const router = createRouter({
         {
             path: "/showAdminLog",
             component: ShowAdminLog
+        },
+        {
+            path: "/addSchedule",
+            component: AddSchedule
         }
     ]
 })

@@ -2,8 +2,6 @@
 /* 导入pinia数据 */
 import { defineUser } from '../store/userStore.js'
 let sysUser = defineUser()
-import { defineUserList } from '../store/userListStore.js';
-let userList = defineUserList()
 import { defineFindUser } from '../store/findUserStore.js';
 let findUser = defineFindUser();
 
@@ -11,6 +9,8 @@ import { ref, reactive, onUpdated, onMounted } from 'vue'
 import request from '../utils/request'
 import { useRouter } from 'vue-router'
 const router = useRouter()
+
+//要用路由传参来传index
 
 let option = ref(1)
 let input = reactive({
@@ -23,29 +23,38 @@ let canShow = ref(true)
 
 async function findUser1() {
     //每次find前,要先清空userList
-    userList.$reset();
+    findUser.$reset();
     //根据input.username
+    let { data } = await request.post("schedule/findAllSchedule", { username: input.username })
+    findUser.itemList = data.data.itemList
+
 }
 async function findUser2() {
-    userList.$reset();
+    findUser.$reset();
     //根据input.realName
+    let { data } = await request.post("schedule/findAllSchedule", { realName: input.realName })
+    findUser.itemList = data.data.itemList
 }
 async function findUser3() {
-    userList.$reset();
+    findUser.$reset();
     //根据input.idCard
+    let { data } = await request.post("schedule/findAllSchedule", { idCard: input.idCard })
+    findUser.itemList = data.data.itemList
 }
 
 async function changeUser(index) {
-    //要向后端索要这个用户的所有信息，保存到findUserStore中
-
     //然后，路由到changeUser
-
-    router.push("/changeUser");
+    router.push({ path: "/changeUser", query: { index: index } });
 }
 
 async function removeUser(index) {
     //告诉后端要删除这个用户账号
-
+    let { data } = await request.post("schedule/findAllSchedule", { uid: findUser.itemList[index].uid, username: findUser.itemList[index].username })
+    if (data.code == 200) {
+        alert("修改成功")
+    } else {
+        alert("修改失败")
+    }
     //然后刷新页面
     location.reload();
 }
@@ -107,7 +116,7 @@ async function removeUser(index) {
                 <th>联系电话</th>
                 <th>操作</th>
             </tr>
-            <tr class="ltr" v-for="item, index in userList.itemList" :key="index">
+            <tr class="ltr" v-for="item, index in findUser.itemList" :key="index">
                 <td>{{ item.username }}</td>
                 <td>{{ item.userRole }}</td>
                 <td>{{ item.realName }}</td>

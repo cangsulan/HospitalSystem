@@ -2,14 +2,17 @@
 /* 导入pinia数据 */
 import { defineUser } from '../store/userStore.js'
 let sysUser = defineUser()
+
+import { useRoute } from 'vue-router';
+let route = useRoute()//用路由传参来接收index参数
+let index = ref(route.query.index)
 import { defineFindUser } from '../store/findUserStore.js';
-let findUser = defineFindUser()
+let findUser = defineFindUser().itemList[index.value] //不确定这么做会不会有问题
 
 import { ref, reactive, onUpdated, onMounted } from 'vue'
 import request from '../utils/request'
 import { useRouter } from 'vue-router'
 const router = useRouter()
-
 
 
 let usernameMsg = ref('')
@@ -39,7 +42,7 @@ async function changeMsg() {
 
 async function checkUserIdCard() {
     let userIdCardReg = /^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
-    if (!userIdCardReg.test(findUser.userIdCard)) {
+    if (!userIdCardReg.test(findUser.idCard)) {
         userIdCardMsg.value = "格式有误"
         return false
     }

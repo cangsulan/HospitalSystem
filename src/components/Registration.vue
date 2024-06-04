@@ -28,7 +28,7 @@ onMounted(async () => {
 })
 
 async function showPatientSchedule() {
-    let { data } = await request.get("schedule/findPatientSchedule", { params: { uid: sysUser.uid } })
+    let { data } = await request.get("schedule/findPatientSchedule", { params:{ uid: sysUser.uid, username: sysUser.username }})
     patientSchedule.itemList = data.data.itemList
 }
 

@@ -7,7 +7,8 @@ let schedule = defineSchedule()
 
 import { ref, reactive, onUpdated, onMounted } from 'vue'
 import request from '../utils/request'
-
+import { useRouter } from 'vue-router';
+let router = useRouter();
 //挂载完毕后,立刻查询当前用户的所有日程信息,赋值给pinia
 onMounted(async () => {
     showSchedule()
@@ -15,18 +16,13 @@ onMounted(async () => {
 // 查询当前用户所有日程信息 并展示到视图的方法
 async function showSchedule() {
     // 发送异步请求,获得当前用户的所有日程记录
-    let { data } = await request.get("schedule/findAllSchedule", { params: { "uid": sysUser.uid } })
+    let { data } = await request.get("schedule/findAllSchedule", { params: { uid: sysUser.uid, username: sysUser.username } })
     schedule.itemList = data.data.itemList
 }
-// 为当前用户增加一个空的日程记录
+
 async function addItem() {
-    let { data } = await request.get('schedule/addDefaultSchedule', { params: { "uid": sysUser.uid } })
-    if (data.code == 200) {
-        // 增加成功,刷新页面数据
-        showSchedule()
-    } else {
-        alert("增加失败")
-    }
+    //改成了跳转到新的AddSchedule.vue界面
+    router.push("/addSchedule");
 }
 
 async function updateItem(index) {
@@ -38,17 +34,19 @@ async function updateItem(index) {
     } else {
         alert("更新失败")
     }
+    location.reload()
 }
 
 async function removeItem(index) {
-    let sid = schedule.itemList[index].sid
-    let { data } = await request.get(`schedule/removeSchedule`, { params: { "sid": sid } })
+    let id = schedule.itemList[index].id
+    let { data } = await request.get(`schedule/removeSchedule`, { params: { id: id } })
     if (data.code == 200) {
         showSchedule()
         alert("删除成功")
     } else {
         alert("删除失败")
     }
+    location.reload()
 }
 
 
@@ -115,7 +113,8 @@ async function removeItem(index) {
     border: 1px solid powderblue;
     text-align: center;
 }
-.ltr td input{
+
+.ltr td input {
     width: 30px;
 }
 

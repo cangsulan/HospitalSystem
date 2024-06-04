@@ -20,7 +20,11 @@ async function showSchedule() {
 }
 
 async function agree(index) {
-    let { data } = await request.post("schedule/updateSchedule", schedule.itemList[index])
+    let { data } = await request.post("schedule/updateSchedule", {
+        id: schedule.itemList[index].id,
+        flag: true,
+
+    })
     if (data.code == 200) {
         alert("操作成功")
         //刷新界面
@@ -32,7 +36,11 @@ async function agree(index) {
 }
 
 async function disagree(index) {
-    let { data } = await request.post("schedule/updateSchedule", schedule.itemList[index])
+    let { data } = await request.post("schedule/updateSchedule", {
+        id: schedule.itemList[index].id,
+        flag: true,
+
+    })
     if (data.code == 200) {
         alert("操作成功")
         //刷新界面

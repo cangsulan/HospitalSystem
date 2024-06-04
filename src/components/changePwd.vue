@@ -50,7 +50,7 @@ async function changePwd() {
     if (flag2 && flag3) {
 
         //这里记得改一下发送的请求
-        let { data } = await request.post("user/regist", { params: { newPwd: newPwd.userPwd, username: sysUser.username, uid: sysUser.uid } })
+        let { data } = await request.post("user/regist", { newPwd: newPwd.userPwd, username: sysUser.username, uid: sysUser.uid } )
         if (data.code == 200) {
             // 注册成功跳转 登录页
             alert("修改成功,请重新登陆!")
