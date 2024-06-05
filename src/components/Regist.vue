@@ -15,6 +15,16 @@ let registUser = reactive({
     userAddress: "",//住址
     userPhone: "",//联系电话
 
+    userAge: 0,
+    userGender: "",
+
+    medicalHistory: "",
+
+    hospital: "", //所属医院
+    office: "", //科室
+    title: "", //职称
+    speciality: "", //专长
+
 })
 
 let usernameMsg = ref('')
@@ -74,24 +84,124 @@ async function checkReUserPwd() {
     return true
 }
 
-// 注册的方法
-async function regist() {
+async function checkAll() {
     // 校验所有的输入框是否合法
     let flag1 = await checkUsername()
     let flag2 = await checkUserPwd()
     let flag3 = await checkReUserPwd()
     let flag4 = await checkUserIdCard()
-    if (flag1 && flag2 && flag3 && flag4) {
-        let { data } = await request.post("user/regist", registUser)
-        if (data.code == 200) {
-            // 注册成功跳转 登录页
-            alert("注册成功,快去登录吧")
-            router.push("/login")
-        } else {
-            alert("抱歉,用户名被抢注了")
+    let flag5 = true //检查用户基本信息
+    let flag6 = true //检查医生和患者的年龄和性别
+    let flag7 = true //检查患者的其他信息
+    let flag8 = true //检查医生的其他信息
+    if (registUser.username == '' ||
+        registUser.userPwd == '' ||
+        registUser.userIdCard == '' ||
+        registUser.userRealName == '' ||
+        registUser.userAddress == '' ||
+        registUser.userphone == ''
+    ) {
+        flag5 = false;
+    }
+    if (registUser.userRole == 'patient' || registUser.userRole == 'doctor') {
+        if (registUser.userAge == '' || registUser.userGender == '') {
+            flag6 = false;
         }
+    }
+    if (registUser.userRole == 'patient') {
+        if (registUser.medicalHistory == '') {
+            flag7 = false;
+        }
+    }
+    if (registUser.userRole == 'doctor') {
+        if (registUser.hospital == '' ||
+            registUser.office == '' ||
+            registUser.title == '' ||
+            registUser.speciality == ''
+        ) {
+            flag8 = false;
+        }
+    }
+    if (flag1 && flag2 && flag3 && flag4 && flag5 && flag6 && flag7 && flag8) {
+        return true;
     } else {
-        alert("校验不通过,请求再次检查数据")
+        return false;
+    }
+
+}
+
+
+// 注册的方法
+async function regist() {
+    // 校验所有的输入框是否合法
+    let flag = await checkAll();
+    if (flag) {
+        //分情况发送：
+        if (registUser.userRole == 'patient') {
+            let { data } = await request.post("registry/patient", {
+
+                userName: registUser.username,
+                password: registUser.userPwd,
+                idNumber: registUser.userIdCard,
+                name: registUser.userRealName,
+                age: registUser.userAge,
+                gender: registUser.userGender,
+                address: registUser.userAddress,
+                contact: registUser.userPhone,
+                medicalRecord: registUser.medicalHistory,
+                authorized: 0,
+                userRole: "patient",
+            })
+            if (data.code == 200) {
+                // 注册成功跳转 登录页
+                alert("注册成功,快去登录吧")
+                router.push("/login")
+            } else {
+                alert("抱歉,注册失败！")
+            }
+        }
+        if (registUser.userRole == 'doctor') {
+            let { data } = await request.post("registry/doctor", {
+                userName: registUser.username,
+                password: registUser.userPwd,
+                idNumber: registUser.userIdCard,
+                name: registUser.userRealName,
+                age: registUser.userAge,
+                gender: registUser.userGender,
+                address: registUser.userAddress,
+                contact: registUser.userPhone,
+                hospital: registUser.hospital,
+                department: registUser.office,
+                title: registUser.title,
+                specialty: registUser.speciality,
+                authorized: 0,
+                userRole: "doctor",
+            })
+            if (data.code == 200) {
+                // 注册成功跳转 登录页
+                alert("注册成功,快去登录吧")
+                router.push("/login")
+            } else {
+                alert("抱歉,注册失败！")
+            }
+        }
+        // if (registUser.userRole == 'admin') {
+        //     let { data } = await request.post("registry/registry", {
+        //         userName: registUser.username,
+        //         userPwd: registUser.userPwd,
+        //         userRole: "admin",
+        //         userChecked: false,
+        //     })
+        //     if (data.code == 200) {
+        //         // 注册成功跳转 登录页
+        //         alert("注册成功,快去登录吧")
+        //         router.push("/login")
+        //     } else {
+        //         alert("抱歉,注册失败！")
+        //     }
+        // }
+    } else {
+        alert("校验不通过,或没有填写所有信息，请再次检查数据！")
     }
 }
 
@@ -109,6 +219,15 @@ function clearForm() {
     registUser.userRealName = ""
     userIdCardMsg.value = ""
 
+    registUser.userAge = 0
+    registUser.userGender = ""
+
+    registUser.medicalHistory = ""
+
+    registUser.hospital = ""//所属医院
+    registUser.office = "" //科室
+    registUser.title = "" //职称
+    registUser.speciality = "" //专长
 }
 
 
@@ -175,11 +294,56 @@ function clearForm() {
             <tr>
                 <td>您的身份</td>
                 <td>
-                    <input type="radio" name="userRole" v-model="registUser.userRole" value="admin">管理员
                     <input type="radio" name="userRole" v-model="registUser.userRole" value="doctor">医生
                     <input type="radio" name="userRole" v-model="registUser.userRole" value="patient">患者
                 </td>
             </tr>
+
+            <tr class="ltr" v-if="registUser.userRole != 'admin'">
+                <td>年龄</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.userAge">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="registUser.userRole != 'admin'">
+                <td>性别</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.userGender">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="registUser.userRole == 'patient'">
+                <td>病历描述</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username"
+                        v-model="registUser.medicalHistory">
+                </td>
+            </tr>
+
+            <tr class="ltr" v-if="registUser.userRole == 'doctor'">
+                <td>所属医院</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.hospital">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="registUser.userRole == 'doctor'">
+                <td>科室</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.office">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="registUser.userRole == 'doctor'">
+                <td>职称</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.title">
+                </td>
+            </tr>
+            <tr class="ltr" v-if="registUser.userRole == 'doctor'">
+                <td>专长</td>
+                <td>
+                    <input class="ipt" id="usernameInput" type="text" name="username" v-model="registUser.speciality">
+                </td>
+            </tr>
+
             <tr class="ltr">
                 <td colspan="2" class="buttonContainer">
                     <input class="btn1" type="button" @click="regist()" value="注册">

@@ -14,25 +14,32 @@ import { ref } from 'vue'
 async function changeMsg() {
   let flag1 = await checkUserIdCard()
   if (flag1) {
-    let { data } = await request.post("/admin/changeMsg", {
-      uid: sysUser.uid,
-      username: sysUser.username,
-      userRole: sysUser.userRole,
-      idCard: sysPatient.idCard,
-      realName: sysPatient.realName,
+    let { data } = await request.post("patient/update", {
+      userId: sysUser.uid,
+      userName: sysUser.username,
+      password: sysUser.userPwd,
+      idNumber: sysPatient.idCard,
+      name: sysPatient.realName,
       age: sysPatient.age,
       gender: sysPatient.gender,
       address: sysPatient.address,
-      phone: sysPatient.phone,
-      medicalHistory: sysPatient.medicalHistory,
-
-    });
+      contact: sysPatient.phone,
+      medicalRecord: sysPatient.medicalHistory,
+      authorized: 1,
+      userRole: "patient",
+    })
     if (data.code == 200) {
       alert("修改成功")
+      //把sysPatient的更改同步到sysUser中：
+      sysUser.idCard = sysPatient.idCard;
+      sysUser.realName = sysPatient.realName;
+      sysUser.age = sysPatient.age;
+      sysUser.gender = sysPatient.gender;
+      sysUser.address = sysPatient.address;
+      sysUser.phone = sysPatient.phone;
     } else {
       alert("修改失败")
     }
-    location.reload()
   } else {
     alert("校验不通过,请求再次检查数据")
   }

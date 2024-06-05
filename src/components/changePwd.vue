@@ -6,6 +6,12 @@ import request from '../utils/request'
 import { defineUser } from '../store/userStore';
 let sysUser = defineUser();
 
+import { defineAdmin } from '../store/adminStore';
+let admin = defineAdmin();
+import { defineDocter } from '../store/docterStore';
+let docter = defineDocter();
+import { definePatient } from '../store/patientStore';
+let patient = definePatient();
 
 import { useRouter } from 'vue-router'
 const router = useRouter()
@@ -49,14 +55,77 @@ async function changePwd() {
     let flag3 = await checkReUserPwd()
     if (flag2 && flag3) {
 
-        //这里记得改一下发送的请求
-        let { data } = await request.post("user/regist", { newPwd: newPwd.userPwd, username: sysUser.username, uid: sysUser.uid } )
-        if (data.code == 200) {
-            // 注册成功跳转 登录页
-            alert("修改成功,请重新登陆!")
-            router.push("/login")
-        } else {
-            alert("抱歉,出错了")
+        //分情况发送：
+        console.log(sysUser.userRole)
+        if (sysUser.userRole == "patient") {
+            let { data } = await request.post("patient/update", {
+                userId: sysUser.uid,
+                userName: sysUser.username,
+                password: newPwd.userPwd,
+                idNumber: sysUser.idCard,
+                name: sysUser.realName,
+                age: sysUser.age,
+                gender: sysUser.gender,
+                address: sysUser.address,
+                contact: sysUser.phone,
+                medicalRecord: patient.medicalHistory,
+                authorized: 1,
+                userRole: "patient",
+            })
+            if (data.code == 200) {
+                // 注册成功跳转 登录页
+                alert("修改成功,请重新登陆!")
+                router.push("/login")
+            } else {
+                alert("抱歉,出错了")
+            }
+        } else if (sysUser.userRole == "doctor") {
+            let { data } = await request.post("doctor/update", {
+                userId: sysUser.uid,
+                userName: sysUser.username,
+                password: newPwd.userPwd,
+                idNumber: sysUser.idCard,
+                name: sysUser.realName,
+                age: sysUser.age,
+                gender: sysUser.gender,
+                address: sysUser.address,
+                contact: sysUser.phone,
+                hospital: docter.hospital,
+                department: docter.office,
+                title: docter.title,
+                specialty: docter.speciality,
+                authorized: 1,
+                userRole: "doctor",
+            })
+            if (data.code == 200) {
+                // 注册成功跳转 登录页
+                alert("修改成功,请重新登陆!")
+                router.push("/login")
+            } else {
+                alert("抱歉,出错了")
+            }
+        } else if (sysUser.userRole == "admin") {
+            // let { data } = await request.post("patient/update", {
+            //     userId: sysUser.uid,
+            //     userName: sysUser.username,
+            //     password: newPwd.userPwd,
+            //     idNumber: sysUser.idCard,
+            //     name: sysUser.realName,
+            //     age: sysUser.age,
+            //     gender: sysUser.gender,
+            //     address: sysUser.address,
+            //     contact: sysUser.phone,
+            //     medicalRecord: patient.medicalHistory,
+            //     authorized: 1,
+            //     userRole: "patient",
+            // })
+            // if (data.code == 200) {
+            //     // 注册成功跳转 登录页
+            //     alert("修改成功,请重新登陆!")
+            //     router.push("/login")
+            // } else {
+            //     alert("抱歉,出错了")
+            // }
         }
     } else {
         alert("校验不通过,请求再次检查数据")

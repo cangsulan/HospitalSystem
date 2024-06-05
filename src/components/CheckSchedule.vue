@@ -12,12 +12,7 @@ import request from '../utils/request'
 onMounted(async () => {
     showSchedule()
 })
-// 查询当前用户所有日程信息 并展示到视图的方法
-async function showSchedule() {
-    // 发送异步请求,获得所有待审核的所有日程记录
-    let { data } = await request.get("schedule/findAllSchedule")
-    schedule.itemList = data.data.itemList
-}
+
 
 async function agree(index) {
     let { data } = await request.post("schedule/updateSchedule", {
@@ -53,6 +48,76 @@ async function disagree(index) {
 
 
 
+//要加一个分页的功能
+let showIndex = ref(0)
+let showItem = reactive({
+    itemList: [],
+})
+let pageSize = 15;
+let nextIndex = ref(showIndex.value + pageSize);
+showItem.itemList = schedule.itemList.slice(showIndex.value, nextIndex.value);
+
+async function showFirstPage() {
+    //跳转到分页的首页
+    showIndex.value = 0;
+    nextIndex.value = showIndex.value + pageSize;
+    if (nextIndex.value > schedule.itemList.length) {
+        nextIndex.value = schedule.itemList.length;
+    }
+    showItem.itemList = schedule.itemList.slice(showIndex.value, nextIndex.value);
+}
+
+async function showPrePage() {
+    //上一页
+    showIndex.value = showIndex.value - pageSize;
+    nextIndex.value = showIndex.value + pageSize;
+    if (showIndex.value < 0) {
+        showIndex.value = 0;
+        nextIndex.value = showIndex.value + pageSize;
+    }
+    if (nextIndex.value > schedule.itemList.length) {
+        nextIndex.value = schedule.itemList.length;
+    }
+    showItem.itemList = schedule.itemList.slice(showIndex.value, nextIndex.value);
+}
+
+async function showNextPage() {
+    //下一页
+    if (nextIndex.value >= schedule.itemList.length) {
+        alert("已经到底了~")
+        return;
+    }
+    showIndex.value = showIndex.value + pageSize;
+    nextIndex.value = nextIndex.value + pageSize;
+    if (showIndex.value < 0) {
+        showIndex.value = 0;
+        nextIndex.value = showIndex.value + pageSize;
+    }
+    if (nextIndex.value > schedule.itemList.length) {
+        nextIndex.value = schedule.itemList.length;
+    }
+    showItem.itemList = schedule.itemList.slice(showIndex.value, nextIndex.value);
+}
+
+
+// 查询当前用户所有日程信息 并展示到视图的方法
+async function showSchedule() {
+    // 发送异步请求,获得所有待审核的所有日程记录
+    let { data } = await request.get("schedule/findAllSchedule")
+    schedule.itemList = data.data.itemList
+
+
+
+    if (schedule.itemList.length < pageSize) {
+        nextIndex.value = schedule.itemList.length;
+    }
+    showItem.itemList = schedule.itemList.slice(showIndex.value, nextIndex.value);
+
+}
+
+
+
+
 
 </script>
 
@@ -70,7 +135,7 @@ async function disagree(index) {
                 <th>时间</th>
                 <th>审核操作</th>
             </tr>
-            <tr class="ltr" v-for="item, index in schedule.itemList" :key="index">
+            <tr class="ltr" v-for="item, index in showItem.itemList" :key="index">
                 <td>{{ item.docterName }}</td>
                 <td>{{ item.title }}</td>
                 <td>{{ item.office }}</td>
@@ -84,6 +149,12 @@ async function disagree(index) {
                 </td>
             </tr>
         </table>
+        <br>
+        <div style="text-align: center;">
+            <button @click="showFirstPage()">首页</button>
+            <button style="margin-right: 20px;margin-left:20px;" @click="showPrePage()">上一页</button>
+            <button @click="showNextPage()">下一页</button>
+        </div>
     </div>
 </template>
 

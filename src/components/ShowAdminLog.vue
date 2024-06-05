@@ -2,13 +2,13 @@
 //该界面用来展示从后端找到的管理员操作记录，
 //包括 管理员删除的记录，和管理员修改记录，主要针对管理员修改用户信息那块
 
-
 /* 导入pinia数据 */
 import { defineUser } from '../store/userStore.js'
 let sysUser = defineUser()
 import { defineAdminLog } from '../store/adminLogStore.js';
-let log = defineAdminLog()
+let logList = defineAdminLog()
 
+let pageSize = 10;
 
 import { ref, reactive, onUpdated, onMounted } from 'vue'
 import request from '../utils/request'
@@ -16,8 +16,15 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 
-let logLength = log.itemList.length;
+let logLength = logList.itemList.length;
 let logIndex = ref(0)
+let log = reactive({
+    itemList: [],
+})
+let nextIndex = ref(logIndex.value + pageSize);
+log.itemList = logList.itemList.slice(logIndex.value, nextIndex.value);
+
+
 
 onMounted(async () => {
     showLogs()
@@ -26,30 +33,56 @@ onMounted(async () => {
 async function showLogs() {
     //首页，前10条
     let { data } = await request.get("schedule/findAllSchedule", { params: { "index": 0 } })
-    log.itemList = data.data.itemList;
-    location.reload();
+    logList.itemList = data.data.itemList;
+    if (logList.itemList.length < pageSize) {
+        nextIndex.value = logList.itemList.length;
+    }
+    log.itemList = logList.itemList.slice(logIndex.value, nextIndex.value);
 }
+
+async function showFirstLogs() {
+    //跳转到首页
+    logIndex.value = 0;
+    nextIndex.value = logIndex.value + pageSize;
+    if (nextIndex.value > logList.itemList.length) {
+        nextIndex.value = logList.itemList.length;
+    }
+    log.itemList = logList.itemList.slice(logIndex.value, nextIndex.value);
+}
+
 
 async function showPreLogs() {
     //上一页
-    logIndex.value = logIndex.value - 10;
+    logIndex.value = logIndex.value - pageSize;
+    nextIndex.value = logIndex.value + pageSize;
     if (logIndex.value < 0) {
         logIndex.value = 0;
+        nextIndex.value = logIndex.value + pageSize;
     }
-    let { data } = await request.get("schedule/findAllSchedule", { params: { "index": logIndex.value } })
-    log.itemList = data.itemList;
-    location.reload();
+    if (nextIndex.value > logList.itemList.length) {
+        nextIndex.value = logList.itemList.length;
+    }
+    log.itemList = logList.itemList.slice(logIndex.value, nextIndex.value);
+    console.log(log.itemList)
 }
 
 async function showNextLogs() {
-    //下一页，如果到底了的话，这个先交给后端解决
-    logIndex.value = logIndex.value + 10;
+    //下一页，如果到底了的话
+    if (nextIndex.value >= logList.itemList.length) {
+        alert("已经到底了~")
+        return;
+    }
+    logIndex.value = logIndex.value + pageSize;
+    nextIndex.value = logIndex.value + pageSize;
     if (logIndex.value < 0) {
         logIndex.value = 0;
+        nextIndex.value = logIndex.value + pageSize;
     }
-    let { data } = await request.get("schedule/findAllSchedule", { params: { "index": logIndex.value } })
-    log.itemList = data.itemList;
-    location.reload();
+    if (nextIndex.value > logList.itemList.length) {
+        nextIndex.value = logList.itemList.length;
+    }
+    log.itemList = logList.itemList.slice(logIndex.value, nextIndex.value);
+    console.log(logIndex.value, nextIndex.value, logList.itemList.length)
 }
 
 </script>
@@ -71,7 +104,7 @@ async function showNextLogs() {
         </table>
         <br>
         <div style="text-align: center;">
-            <button @click="showLogs()">首页</button>
+            <button @click="showFirstLogs()">首页</button>
             <button style="margin-right: 20px;margin-left:20px;" @click="showPreLogs()">上一页</button>
             <button @click="showNextLogs()">下一页</button>
         </div>

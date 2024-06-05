@@ -13,6 +13,15 @@ let router = useRouter();
 onMounted(async () => {
     showSchedule()
 })
+
+router.beforeEach((to, from, next) => {
+    if (to.name == "/showSchedule" && from.name != "/showSchedule") {
+        showSchedule()
+    }
+    next();
+})
+
+
 // 查询当前用户所有日程信息 并展示到视图的方法
 async function showSchedule() {
     // 发送异步请求,获得当前用户的所有日程记录
@@ -23,18 +32,6 @@ async function showSchedule() {
 async function addItem() {
     //改成了跳转到新的AddSchedule.vue界面
     router.push("/addSchedule");
-}
-
-async function updateItem(index) {
-    // 找到要修改的数据 发送给服务端,更新进入数据库即可
-    let { data } = await request.post("schedule/updateSchedule", schedule.itemList[index])
-    if (data.code == 200) {
-        showSchedule()
-        alert("更新成功")
-    } else {
-        alert("更新失败")
-    }
-    location.reload()
 }
 
 async function removeItem(index) {
@@ -81,7 +78,6 @@ async function removeItem(index) {
                 <td>{{ item.checked }}</td>
                 <td class="buttonContainer">
                     <button class="btn1" @click="removeItem(index)">删除</button>
-                    <button class="btn1" @click="updateItem(index)">保存修改</button>
                 </td>
             </tr>
             <tr class="ltr buttonContainer">

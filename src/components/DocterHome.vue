@@ -27,20 +27,21 @@ async function checkUserIdCard() {
 async function changeMsg() {
   let flag1 = await checkUserIdCard()
   if (flag1) {
-    let { data } = await request.post("/admin/changeMsg", {
-      uid: sysUser.uid,
-      username: sysUser.username,
-      userRole: sysUser.userRole,
-      idCard: sysDocter.idCard,
-      realName: sysDocter.realName,
-      age: sysDocter.age,
-      gender: sysDocter.gender,
-      address: sysDocter.address,
-      phone: sysDocter.phone,
+    let { data } = await request.post("/doctor/update", {
+      userName: sysUser.username,
+      password: sysUser.userPwd,
+      idNumber: sysUser.userIdCard,
+      name: sysUser.userRealName,
+      age: sysUser.userAge,
+      gender: sysUser.userGender,
+      address: sysUser.userAddress,
+      contact: sysUser.userPhone,
       hospital: sysDocter.hospital,
-      office: sysDocter.office,
+      department: sysDocter.office,
       title: sysDocter.title,
-      speciality: sysDocter.speciality,
+      specialty: sysDocter.speciality,
+      authorized: 1,
+      userRole: "doctor",
 
 
     });

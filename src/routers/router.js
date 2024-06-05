@@ -99,20 +99,20 @@ const router = createRouter({
     ]
 })
 
-// 路由 的全局前置守卫 判断是否可以访问showSchedule
-// router.beforeEach((to,from,next)=>{
-//     if(to.path == '/patienthome' || to.path=='/adminhome' || to.path=='/docterhome'){
-//         // 登陆过放行
-//         // 没登录 回到登录页
-//         if(sysUser.username == ''){
-//             next("/login")
-//         }else{
-//             next()
-//         }
-//     }else{
-//         next()
-//     }
+//路由 的全局前置守卫 判断是否可以访问showSchedule
+router.beforeEach((to, from, next) => {
+    if (to.path != "/login" && to.path != "/regist") {
+        // 登陆过放行
+        // 没登录 回到登录页
+        if (sysUser.username == '') {
+            next("/login")
+        } else {
+            next()
+        }
+    } else {
+        next()
+    }
 
-// })
+})
 
 export default router

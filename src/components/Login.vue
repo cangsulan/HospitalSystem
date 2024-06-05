@@ -17,7 +17,9 @@ import request from "../utils/request";
 let loginUser = reactive({
     username: "",
     userPwd: "",
+    userRole: "patient",
 });
+
 
 let usernameMsg = ref("");
 let userPwdMsg = ref("");
@@ -43,74 +45,129 @@ function checkUserPwd() {
     userPwdMsg.value = "OK";
     return true;
 }
-
 async function login() {
     // 表单数据格式都正确再提交
     let flag1 = checkUsername();
     let flag2 = checkUserPwd();
     if (!(flag1 && flag2)) {
+        alert("输入不符合要求！")
         return;
     }
-    let { data } = await request.post("user/login", loginUser);
-    if (data.code == 200) {
-        alert("登录成功");
-        console.log(data);
-        // 获得登录的用户信息,更新到pinia中,这里我只要后续有用的信息，所以不要提供密码
-        sysUser.uid = data.data.loginUser.uid;
-        sysUser.username = data.data.loginUser.username;
-        sysUser.userRole = data.data.loginUser.userRole;
-        sysUser.userChecked = data.data.loginUser.userChecked;
-        sysUser.userPwd = data.data.loginUser.userPwd;
-        sysUser.idCard = data.data.loginUser.idCard;
-        sysUser.realName = data.data.loginUser.realName;
-        sysUser.address = data.data.loginUser.address;
-        sysUser.phone = data.data.loginUser.phone;
-        sysUser.userPwd = loginUser.userPwd;
-        if (sysUser.username == "admin" && sysUser.userPwd == "admin") {
-            router.push("/changePwd");
-        }
-        //这里做一下判定，看账户有没有通过审核，这块先交给后端判定
-        //根据用户身份来跳转：
-        if (sysUser.userRole == "patient") {
-            patient.idCard = data.data.loginUser.idCard;
-            patient.realName = data.data.loginUser.realName;
-            patient.age = data.data.loginUser.age;
-            patient.gender = data.data.loginUser.gender;
-            patient.address = data.data.loginUser.address;
-            patient.phone = data.data.loginUser.phone;
-            patient.medicalHistory = data.data.loginUser.medicalHistory;
+    //分情况发送：
+    if (loginUser.userRole == 'patient') {
+        let { data } = await request.post("login/patient", {
+            userName: loginUser.username,
+            password: loginUser.userPwd,
+        });
+        if (data.code == 200) {
+            alert("登录成功");
+            let userData = data;
+            // 获得登录的用户信息,更新到pinia中,这里我只要后续有用的信息，所以不要提供密码
+            sysUser.uid = userData.data.uid;
+            sysUser.username = userData.data.username;
+            sysUser.userRole = "patient";
+            if (userData.data.userChecked == 0) {
+                sysUser.userChecked = "待审核"
+            } else {
+                sysUser.userChecked = "已通过"
+            }
+            sysUser.userPwd = userData.data.userPwd;
+            sysUser.idCard = userData.data.idCard;
+            sysUser.realName = userData.data.realName;
+            sysUser.address = userData.data.address;
+            sysUser.phone = userData.data.phone;
+            sysUser.userPwd = loginUser.userPwd;
+
+            patient.idCard = userData.data.idCard;
+            patient.realName = userData.data.realName;
+            patient.age = userData.data.age;
+            patient.gender = userData.data.gender;
+            patient.address = userData.data.address;
+            patient.phone = userData.data.phone;
+            patient.medicalHistory = userData.data.medicalHistory;
 
             router.push("/patienthome");
-        } else if (sysUser.userRole == "doctor") {
-            docter.idCard = data.data.loginUser.idCard;
-            docter.realName = data.data.loginUser.realName;
-            docter.age = data.data.loginUser.age;
-            docter.gender = data.data.loginUser.gender;
-            docter.address = data.data.loginUser.address;
-            docter.phone = data.data.loginUser.phone;
-            docter.hospital = data.data.loginUser.hospital;
-            docter.office = data.data.loginUser.office;
-            docter.title = data.data.loginUser.title;
-            docter.speciality = data.data.loginUser.speciality;
-
-            router.push("/docterhome");
-        } else if (sysUser.userRole == "admin") {
-            admin.idCard = data.data.loginUser.idCard;
-            admin.realName = data.data.loginUser.realName;
-            admin.address = data.data.loginUser.address;
-            admin.phone = data.data.loginUser.phone;
-
-            router.push("/adminhome");
+        } else {
+            alert("登录失败");
         }
-    } else if (data.code == 501) {
-        alert("密码有误");
-    } else if (data.code == 502) {
-        alert("用户名有误");
-    } else if (data.code == 503) {
-        alert("账户还未通过审核");
-    } else {
-        alert("未知错误");
     }
+    if (loginUser.userRole == 'doctor') {
+        let { data } = await request.post("login/doctor", {
+            userName: loginUser.username,
+            password: loginUser.userPwd,
+        });
+        if (data.code == 200) {
+            alert("登录成功");
+            let userData = data;
+            // 获得登录的用户信息,更新到pinia中,这里我只要后续有用的信息，所以不要提供密码
+            sysUser.uid = userData.data.uid;
+            sysUser.username = userData.data.username;
+            sysUser.userRole = "doctor";
+            if (userData.data.userChecked == 0) {
+                sysUser.userChecked = "待审核"
+            } else {
+                sysUser.userChecked = "已通过"
+            }
+            sysUser.userPwd = userData.data.userPwd;
+            sysUser.idCard = userData.data.idCard;
+            sysUser.realName = userData.data.realName;
+            sysUser.address = userData.data.address;
+            sysUser.phone = userData.data.phone;
+            sysUser.userPwd = loginUser.userPwd;
+
+            docter.idCard = userData.data.idCard;
+            docter.realName = userData.data.realName;
+            docter.age = userData.data.age;
+            docter.gender = userData.data.gender;
+            docter.address = userData.data.address;
+            docter.phone = userData.data.phone;
+            docter.hospital = userData.data.hospital;
+            docter.office = userData.data.office;
+            docter.title = userData.data.title;
+            docter.speciality = userData.data.speciality;
+            router.push("/docterhome");
+
+        } else {
+            alert("登录失败");
+        }
+    }
+    if (loginUser.userRole == 'admin') {
+        let { data } = await request.post("login/admin", {
+            userName: loginUser.username,
+            password: loginUser.userPwd,
+        });
+        if (data.code == 200) {
+            alert("登录成功");
+            let userData = data;
+            // 获得登录的用户信息,更新到pinia中,这里我只要后续有用的信息，所以不要提供密码
+            sysUser.uid = userData.data.uid;
+            sysUser.username = userData.data.username;
+            sysUser.userRole = "admin";
+            if (userData.data.userChecked == 0) {
+                sysUser.userChecked = "待审核"
+            } else {
+                sysUser.userChecked = "已通过"
+            }
+            sysUser.userPwd = userData.data.userPwd;
+            sysUser.idCard = userData.data.idCard;
+            sysUser.realName = userData.data.realName;
+            sysUser.address = userData.data.address;
+            sysUser.phone = userData.data.phone;
+            sysUser.userPwd = loginUser.userPwd;
+
+            admin.idCard = userData.data.idCard;
+            admin.realName = userData.data.realName;
+            admin.address = userData.data.address;
+            admin.phone = userData.data.phone;
+            if (sysUser.username == "admin" && sysUser.userPwd == "admin") {
+                router.push("/changePwd");
+            }
+            router.push("/adminhome");
+        } else {
+            alert("登录失败");
+        }
+    }
+
 }
 
 function clearForm() {
@@ -118,6 +175,7 @@ function clearForm() {
     userPwdMsg.value = "";
     loginUser.userPwd = "";
     loginUser.username = "";
+    loginUser.userRole = "patient";
 }
 </script>
 
@@ -137,6 +195,14 @@ function clearForm() {
                 <td>
                     <input class="ipt" type="password" v-model="loginUser.userPwd" @blur="checkUserPwd()" />
                     <span id="userPwdMsg" v-text="userPwdMsg"></span>
+                </td>
+            </tr>
+            <tr class="ltr">
+                <td>身份</td>
+                <td>
+                    <input type="radio" name="userRole" v-model="loginUser.userRole" value="admin">管理员
+                    <input type="radio" name="userRole" v-model="loginUser.userRole" value="doctor">医生
+                    <input type="radio" name="userRole" v-model="loginUser.userRole" value="patient">患者
                 </td>
             </tr>
             <tr class="ltr">

@@ -18,6 +18,7 @@ let userList = defineUserList()
 
 import { useRouter } from 'vue-router'
 let router = useRouter()
+import request from "../utils/request";
 
 function goHome() {
   if (sysUser.userRole == "patient") {
@@ -33,7 +34,15 @@ function goHome() {
   }
 }
 
-function logout() {
+async function logout() {
+  //发送请求给后端：
+  let { data } = await request.get("login/logout");
+  if (data.code != 200) {
+    alert("操作失败。。");
+    return;
+  } else {
+    alert("退出成功！")
+  }
   // 清除所有pinia数据
   sysUser.$reset()
   sysAdmin.$reset()
@@ -42,6 +51,7 @@ function logout() {
   schedule.$reset()
   patientSchedule.$reset()
   userList.$reset()
+
   // 跳转到登录页
   router.push("/login")
 }

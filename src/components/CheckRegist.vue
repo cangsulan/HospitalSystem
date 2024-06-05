@@ -15,14 +15,9 @@ onMounted(async () => {
 })
 
 
-async function showUserList() {
-    // 发送异步请求,获得当前待审核的所有信息
-    let { data } = await request.get("schedule/findAllSchedule")
-    userList.itemList = data.data.itemList
-}
 
 async function agree(index) {
-    let { data } = await request.post("schedule/updateSchedule", {
+    let { data } = await request.post("userList/updateuserList", {
         uid: userList.itemList[index].uid,
         flag: true,
 
@@ -38,7 +33,7 @@ async function agree(index) {
 }
 
 async function disagree(index) {
-    let { data } = await request.post("schedule/updateSchedule", {
+    let { data } = await request.post("userList/updateuserList", {
         uid: userList.itemList[index].uid,
         flag: false,
 
@@ -53,6 +48,73 @@ async function disagree(index) {
     }
 }
 
+
+
+//要加一个分页的功能
+let showIndex = ref(0)
+let showItem = reactive({
+    itemList: [],
+})
+let pageSize = 15;
+let nextIndex = ref(showIndex.value + pageSize);
+showItem.itemList = userList.itemList.slice(showIndex.value, nextIndex.value);
+
+async function showFirstPage() {
+    //跳转到分页的首页
+    showIndex.value = 0;
+    nextIndex.value = showIndex.value + pageSize;
+    if (nextIndex.value > userList.itemList.length) {
+        nextIndex.value = userList.itemList.length;
+    }
+    showItem.itemList = userList.itemList.slice(showIndex.value, nextIndex.value);
+}
+
+async function showPrePage() {
+    //上一页
+    showIndex.value = showIndex.value - pageSize;
+    nextIndex.value = showIndex.value + pageSize;
+    if (showIndex.value < 0) {
+        showIndex.value = 0;
+        nextIndex.value = showIndex.value + pageSize;
+    }
+    if (nextIndex.value > userList.itemList.length) {
+        nextIndex.value = userList.itemList.length;
+    }
+    showItem.itemList = userList.itemList.slice(showIndex.value, nextIndex.value);
+}
+
+async function showNextPage() {
+    //下一页
+    if (nextIndex.value >= userList.itemList.length) {
+        alert("已经到底了~")
+        return;
+    }
+    showIndex.value = showIndex.value + pageSize;
+    nextIndex.value = nextIndex.value + pageSize;
+    if (showIndex.value < 0) {
+        showIndex.value = 0;
+        nextIndex.value = showIndex.value + pageSize;
+    }
+    if (nextIndex.value > userList.itemList.length) {
+        nextIndex.value = userList.itemList.length;
+    }
+    showItem.itemList = userList.itemList.slice(showIndex.value, nextIndex.value);
+}
+
+
+async function showUserList() {
+    // 发送异步请求,获得当前待审核的所有信息
+    let { data } = await request.get("userList/findAlluserList")
+    userList.itemList = data.data.itemList
+
+
+
+
+    if (userList.itemList.length < pageSize) {
+        nextIndex.value = userList.itemList.length;
+    }
+    showItem.itemList = userList.itemList.slice(showIndex.value, nextIndex.value);
+}
 
 
 
@@ -71,7 +133,7 @@ async function disagree(index) {
                 <th>联系电话</th>
                 <th>审核操作</th>
             </tr>
-            <tr class="ltr" v-for="item, index in userList.itemList" :key="index">
+            <tr class="ltr" v-for="item, index in showItem.itemList" :key="index">
                 <td>{{ item.username }}</td>
                 <td>{{ item.userRole }}</td>
                 <td>{{ item.realName }}</td>
@@ -84,6 +146,12 @@ async function disagree(index) {
                 </td>
             </tr>
         </table>
+        <br>
+        <div style="text-align: center;">
+            <button @click="showFirstPage()">首页</button>
+            <button style="margin-right: 20px;margin-left:20px;" @click="showPrePage()">上一页</button>
+            <button @click="showNextPage()">下一页</button>
+        </div>
     </div>
 </template>
 

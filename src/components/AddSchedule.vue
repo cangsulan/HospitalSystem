@@ -38,6 +38,9 @@ async function addSchedule() {
     router.push("/showSchedule")
 }
 
+async function goback() {
+    router.push("/showSchedule")
+}
 </script>
 
 <template>
@@ -66,6 +69,7 @@ async function addSchedule() {
             <tr class="ltr buttonContainer">
                 <td colspan="4">
                     <button class="btn1" @click="addSchedule()">确认新增</button>
+                    <button class="btn1" @click="goback()">返回</button>
                 </td>
 
             </tr>
@@ -106,7 +110,7 @@ async function addSchedule() {
 .btn1 {
     border: 2px solid powderblue;
     border-radius: 4px;
-    width: 100px;
+    width: 80px;
     background-color: antiquewhite;
 
 }

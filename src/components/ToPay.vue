@@ -13,6 +13,7 @@ let sysPatient = definePatient()
 
 import { defineSchedule } from '../store/scheduleStore';
 import { definePatientSchedule } from '../store/patientScheduleStore';
+import { id } from 'element-plus/es/locales.mjs';
 let schedule = defineSchedule()
 let patientSchedule = definePatientSchedule()
 
@@ -31,8 +32,8 @@ let item = reactive({
     time: schedule.itemList[index.value].time,
 
 })
-async function toApply(index) {
-    let { data } = await request.post("registration/apply", { uid: sysUser.uid, username: sysUser.username, id: schedule.itemList[index].id })
+async function toApply() {
+    let { data } = await request.get("registration/pay",{params:{id:schedule.itemList[index.value].id}})
     if (data.code == 200) {
         alert("挂号成功！");
     } else {
@@ -72,7 +73,7 @@ function refresh() {
         </table>
         <br>
         <div class="ht">
-            <button class="btn1" @click="toApply(index)">确认支付</button>
+            <button class="btn1" @click="toApply()">确认支付</button>
         </div>
     </div>
 </template>

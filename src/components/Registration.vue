@@ -27,20 +27,116 @@ onMounted(async () => {
     showSchedule()
 })
 
+router.beforeEach((to, from, next) => {
+    if (to.name == "/registration" && from.name != "/registration") {
+        showSchedule()
+        showPatientSchedule()
+    }
+    next();
+})
+
+
 async function showPatientSchedule() {
-    let { data } = await request.get("schedule/findPatientSchedule", { params:{ uid: sysUser.uid, username: sysUser.username }})
-    patientSchedule.itemList = data.data.itemList
+    let { data } = await request.get("registration/getSelfRegistration");
+    for (let index in data.data) {
+        patientSchedule.itemList[index].id = data.data[index].id;
+        patientSchedule.itemList[index].uid = data.data[index].doctorId;
+        patientSchedule.itemList[index].count = data.data[index].quantity;
+        patientSchedule.itemList[index].availableCount = data.data[index].quantity - data.data[index].lockedQuantity;
+        if (data.data[index].authorized == 0) {
+            patientSchedule.itemList[index].checked = "待审核"
+        } else {
+            patientSchedule.itemList[index].checked = "已通过"
+        }
+        patientSchedule.itemList[index].date = data.data[index].quantity;
+
+    }
 }
+
+
+
+
+
+
+//要加一个分页的功能
+let showIndex = ref(0)
+let showItem = reactive({
+    itemList: [],
+})
+let pageSize = 10;
+let nextIndex = ref(showIndex.value + pageSize);
+showItem.itemList = schedule.itemList.slice(showIndex.value, nextIndex.value);
+
+async function showFirstPage() {
+    //跳转到分页的首页
+    showIndex.value = 0;
+    nextIndex.value = showIndex.value + pageSize;
+    if (nextIndex.value > schedule.itemList.length) {
+        nextIndex.value = schedule.itemList.length;
+    }
+    showItem.itemList = schedule.itemList.slice(showIndex.value, nextIndex.value);
+}
+
+async function showPrePage() {
+    //上一页
+    showIndex.value = showIndex.value - pageSize;
+    nextIndex.value = showIndex.value + pageSize;
+    if (showIndex.value < 0) {
+        showIndex.value = 0;
+        nextIndex.value = showIndex.value + pageSize;
+    }
+    if (nextIndex.value > schedule.itemList.length) {
+        nextIndex.value = schedule.itemList.length;
+    }
+    showItem.itemList = schedule.itemList.slice(showIndex.value, nextIndex.value);
+}
+
+async function showNextPage() {
+    //下一页
+    if (nextIndex.value >= schedule.itemList.length) {
+        alert("已经到底了~")
+        return;
+    }
+    showIndex.value = showIndex.value + pageSize;
+    nextIndex.value = nextIndex.value + pageSize;
+    if (showIndex.value < 0) {
+        showIndex.value = 0;
+        nextIndex.value = showIndex.value + pageSize;
+    }
+    if (nextIndex.value > schedule.itemList.length) {
+        nextIndex.value = schedule.itemList.length;
+    }
+    showItem.itemList = schedule.itemList.slice(showIndex.value, nextIndex.value);
+}
+
 
 async function showSchedule() {
     let { data } = await request.get("schedule/findAllSchedule")
     schedule.itemList = data.data.itemList
+
+
+
+
+
+    if (schedule.itemList.length < pageSize) {
+        nextIndex.value = schedule.itemList.length;
+    }
+    showItem.itemList = schedule.itemList.slice(showIndex.value, nextIndex.value);
+
 }
 
-async function toApply(index) {
-    let { data } = await request.get("registration/apply", schedule.itemList[index])
+//根据showItem的index找到在schedule中的index
+async function TransformIndex(index) {
+    return showIndex.value + index;
+}
+
+async function toApply(id, index) {
+    transmit(await TransformIndex(index));
+    let { data } = await request.get("registration/registration", { params: { id: id } });
+
     if (data.code == 200) {
-        alert("挂号成功！");
+        alert("挂号成功，前往支付。。");
+        transmit(await TransformIndex(index));
     } else {
         alert("挂号失败......");
     }
@@ -52,6 +148,7 @@ async function toApply(index) {
 function refresh() {
     location.reload()
 }
+
 </script>
 
 <template>
@@ -94,7 +191,7 @@ function refresh() {
                 <th>剩余名额</th>
                 <th>操作</th>
             </tr>
-            <tr class="ltr" v-for="item, index in schedule.itemList" :key="index">
+            <tr class="ltr" v-for="item, index in showItem.itemList" :key="index">
                 <td>{{ item.docterName }}</td>
                 <td>{{ item.title }}</td>
                 <td>{{ item.hospital }}</td>
@@ -103,13 +200,16 @@ function refresh() {
                 <td>{{ item.year }}-{{ item.month }}-{{ item.day }} {{ item.time }}</td>
                 <td>{{ item.availableCount }}</td>
                 <td class="buttonContainer">
-                    <router-link v-bind:to="{ path: '/topay', query: { index: index } }">
-                        <button class="btn1">挂号</button>
-                    </router-link>
+                    <button class="btn1" @click="toApply(item.id, index)">挂号</button>
                 </td>
             </tr>
         </table>
         <br>
+        <div style="text-align: center;">
+            <button @click="showFirstPage()">首页</button>
+            <button style="margin-right: 20px;margin-left:20px;" @click="showPrePage()">上一页</button>
+            <button @click="showNextPage()">下一页</button>
+        </div>
         <hr>
     </div>
 </template>
