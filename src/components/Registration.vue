@@ -27,6 +27,15 @@ onMounted(async () => {
     showSchedule()
 })
 
+router.beforeEach((to, from, next) => {
+    if (to.name == "/registration" && from.name!="/registration") {
+        showSchedule()
+        showPatientSchedule()
+    }
+    next();
+})
+
+
 async function showPatientSchedule() {
     let { data } = await request.get("schedule/findPatientSchedule", { params:{ uid: sysUser.uid, username: sysUser.username }})
     patientSchedule.itemList = data.data.itemList

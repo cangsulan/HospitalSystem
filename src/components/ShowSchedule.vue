@@ -13,6 +13,15 @@ let router = useRouter();
 onMounted(async () => {
     showSchedule()
 })
+
+router.beforeEach((to, from, next) => {
+    if (to.name == "/showSchedule" && from.name != "/showSchedule") {
+        showSchedule()
+    }
+    next();
+})
+
+
 // 查询当前用户所有日程信息 并展示到视图的方法
 async function showSchedule() {
     // 发送异步请求,获得当前用户的所有日程记录
