@@ -36,6 +36,8 @@ async function toApply() {
     let { data } = await request.get(`registration/pay/${schedule.itemList[index.value].id}`)
     if (data.code == 200) {
         alert("支付成功！");
+    } else if (data.code == 410) {
+        alert("您已经支付过了，请勿重复支付")
     } else {
         alert("哦豁。。出错了！");
     }

@@ -32,8 +32,18 @@ onMounted(async () => {
 
 async function showLogs() {
     //首页，前10条
-    let { data } = await request.get("schedule/findAllSchedule", { params: { "index": 0 } })
-    logList.itemList = data.data.itemList;
+    let { data } = await request.get("log/getAll");
+
+    logList.itemList = [];
+    for (let index in data.data) {
+        let geted = new Object();
+        geted.id = data.data[index].id;
+        let item = data.data[index];
+        geted.log = `管理员 ${item.adminId} 号更改了 ${item.userRole} 用户 ${item.userId} 号的信息,修改时间为: ${item.modifyTime} ,修改类型为${item.operationType},该用户信息原来为：${item.originalValue} `;
+        logList.itemList.push(geted);
+    }
+
+
     if (logList.itemList.length < pageSize) {
         nextIndex.value = logList.itemList.length;
     }
@@ -84,7 +94,6 @@ async function showNextLogs() {
     log.itemList = logList.itemList.slice(logIndex.value, nextIndex.value);
     console.log(logIndex.value, nextIndex.value, logList.itemList.length)
 }
-
 </script>
 
 <template>
@@ -92,20 +101,22 @@ async function showNextLogs() {
         <h3 class="ht">管理员操作记录如下</h3>
         <table class="tab" cellspacing="0px">
             <tr class="ltr">
-                <th style="width: 60px;">序号</th>
-                <th> log描述:</th>
+                <th style="width: 60px">序号</th>
+                <th>log描述:</th>
             </tr>
-            <tr class="ltr" v-for="item, index in log.itemList" :key="index">
-                <td style="text-align: center;">{{ log.itemList[index].id }}</td>
+            <tr class="ltr" v-for="(item, index) in log.itemList" :key="index">
+                <td style="text-align: center">{{ log.itemList[index].id }}</td>
                 <td>
                     {{ log.itemList[index].log }}
                 </td>
             </tr>
         </table>
-        <br>
-        <div style="text-align: center;">
+        <br />
+        <div style="text-align: center">
             <button @click="showFirstLogs()">首页</button>
-            <button style="margin-right: 20px;margin-left:20px;" @click="showPreLogs()">上一页</button>
+            <button style="margin-right: 20px; margin-left: 20px" @click="showPreLogs()">
+                上一页
+            </button>
             <button @click="showNextLogs()">下一页</button>
         </div>
     </div>
@@ -138,7 +149,6 @@ async function showNextLogs() {
 .ipt {
     border: 0px;
     width: 50%;
-
 }
 
 .btn1 {
@@ -146,7 +156,6 @@ async function showNextLogs() {
     border-radius: 4px;
     width: 100px;
     background-color: antiquewhite;
-
 }
 
 #usernameMsg,

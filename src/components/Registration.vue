@@ -196,6 +196,11 @@ async function toApply(id, index) {
     if (data.code == 200) {
         alert("挂号成功！前往支付！")
         transmit(await TransformIndex(index));
+    } else if (data.code == 407) {
+        let v = confirm("您已经挂了该号了，若没有支付，请按【确定】前往支付");
+        if (v) {
+            transmit(await TransformIndex(index));
+        }
     } else {
         alert("挂号失败！")
     }

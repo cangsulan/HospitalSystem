@@ -24,6 +24,7 @@ router.beforeEach((to, from, next) => {
 
 
 async function agree(index) {
+    index = showIndex.value + index;
     //先判断身份：
     if (userList.itemList[index].userRole == "patient") {
         let { data } = await request.post(`admin/check/patient/${userList.itemList[index].uid}`)

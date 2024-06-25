@@ -73,7 +73,6 @@ async function addSchedule() {
         alert("您在该时间段已经存在号源了哦！请勿重复发布！")
     } else {
         alert("操作失败。。")
-        router.push("/showSchedule")
     }
 }
 

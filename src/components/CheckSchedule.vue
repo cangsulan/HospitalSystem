@@ -15,7 +15,13 @@ onMounted(async () => {
 
 
 async function agree(index) {
-    request.post(`admin/check/registration/${schedule.itemList[index].id}`);
+    //let { data } = await
+    request.post(`admin/check/registration/${schedule.itemList[showIndex.value + index].id}`);
+    // if (data.code == 200) {
+    //     alert("操作成功！")
+    // } else {
+    //     alert("操作失败！")
+    // }
     alert("操作成功！")
     showSchedule();
     showSchedule();

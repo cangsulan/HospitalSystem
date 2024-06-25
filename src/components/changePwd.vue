@@ -105,27 +105,24 @@ async function changePwd() {
                 alert("抱歉,出错了")
             }
         } else if (sysUser.userRole == "admin") {
-            // let { data } = await request.post("patient/update", {
-            //     userId: sysUser.uid,
-            //     userName: sysUser.username,
-            //     password: newPwd.userPwd,
-            //     idNumber: sysUser.idCard,
-            //     name: sysUser.realName,
-            //     age: sysUser.age,
-            //     gender: sysUser.gender,
-            //     address: sysUser.address,
-            //     contact: sysUser.phone,
-            //     medicalRecord: patient.medicalHistory,
-            //     authorized: 1,
-            //     userRole: "patient",
-            // })
-            // if (data.code == 200) {
-            //     // 注册成功跳转 登录页
-            //     alert("修改成功,请重新登陆!")
-            //     router.push("/login")
-            // } else {
-            //     alert("抱歉,出错了")
-            // }
+            let { data } = await request.post("admin/update", {
+                userId: sysUser.uid,
+                userName: sysUser.username,
+                password: newPwd.userPwd,
+                idNumber: sysUser.idCard,
+                name: sysUser.realName,
+                
+                address: sysUser.address,
+                contact: sysUser.phone,
+                userRole: "admin",
+            })
+            if (data.code == 200) {
+                // 注册成功跳转 登录页
+                alert("修改成功,请重新登陆!")
+                router.push("/login")
+            } else {
+                alert("抱歉,出错了")
+            }
         }
     } else {
         alert("校验不通过,请求再次检查数据")

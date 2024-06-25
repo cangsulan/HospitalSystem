@@ -22,24 +22,120 @@ let input = reactive({
 let canShow = ref(true)
 
 async function findUser1() {
-    //每次find前,要先清空userList
-    findUser.$reset();
+
     //根据input.username
-    let { data } = await request.post("schedule/findAllSchedule", { username: input.username })
-    findUser.itemList = data.data.itemList
+    let { data } = await request.get("admin/search/username", { params: { p: input.username } });
+    if (data.code == 200) {
+        //每次find前,要先清空userList
+        findUser.itemList = []
+        for (let index in data.data) {
+            let geted = new Object();
+            geted.uid = data.data[index].uid;
+            geted.userPwd = data.data[index].userPwd;
+            geted.username = data.data[index].username;
+            if (data.data[index].userRole == "PATIENT") {
+                geted.userRole = "patient";
+            } else if (data.data[index].userRole == "DOCTOR") {
+                geted.userRole = "doctor";
+            } else if (data.data[index].userRole == "ADMIN") {
+                geted.userRole = "admin";
+            }
+            if (data.data[index].userChecked == 1) {
+                geted.userChecked = "已通过";
+            } else {
+                geted.userChecked = "待审核";
+            }
+            geted.idCard = data.data[index].idCard;
+            geted.realName = data.data[index].realName;
+            geted.address = data.data[index].address;
+            geted.phone = data.data[index].phone;
+            geted.age = data.data[index].age;
+            geted.gender = data.data[index].gender;
+            geted.hospital = data.data[index].hospital;
+            geted.office = data.data[index].office;
+            geted.title = data.data[index].title;
+            geted.speciality = data.data[index].speciality;
+            geted.medicalHistory = data.data[index].medicalHistory;
+            findUser.itemList.push(geted);
+        }
+    }
 
 }
 async function findUser2() {
-    findUser.$reset();
     //根据input.realName
-    let { data } = await request.post("schedule/findAllSchedule", { realName: input.realName })
-    findUser.itemList = data.data.itemList
+    let { data } = await request.get("admin/search/name", { params: { p: input.realName } })
+    if (data.code == 200) {
+        //每次find前,要先清空userList
+        findUser.itemList = []
+        for (let index in data.data) {
+            let geted = new Object();
+            geted.uid = data.data[index].uid;
+            geted.userPwd = data.data[index].userPwd;
+            geted.username = data.data[index].username;
+            if (data.data[index].userRole == "PATIENT") {
+                geted.userRole = "patient";
+            } else if (data.data[index].userRole == "DOCTOR") {
+                geted.userRole = "doctor";
+            } else if (data.data[index].userRole == "ADMIN") {
+                geted.userRole = "admin";
+            }
+            if (data.data[index].userChecked == 1) {
+                geted.userChecked = "已通过";
+            } else {
+                geted.userChecked = "待审核";
+            }
+            geted.idCard = data.data[index].idCard;
+            geted.realName = data.data[index].realName;
+            geted.address = data.data[index].address;
+            geted.phone = data.data[index].phone;
+            geted.age = data.data[index].age;
+            geted.gender = data.data[index].gender;
+            geted.hospital = data.data[index].hospital;
+            geted.office = data.data[index].office;
+            geted.title = data.data[index].title;
+            geted.speciality = data.data[index].speciality;
+            geted.medicalHistory = data.data[index].medicalHistory;
+            findUser.itemList.push(geted);
+        }
+    }
 }
 async function findUser3() {
-    findUser.$reset();
     //根据input.idCard
-    let { data } = await request.post("schedule/findAllSchedule", { idCard: input.idCard })
-    findUser.itemList = data.data.itemList
+    let { data } = await request.get("admin/search/idNumber", { params: { p: input.idCard } })
+    if (data.code == 200) {
+        //每次find前,要先清空userList
+        findUser.itemList = []
+        for (let index in data.data) {
+            let geted = new Object();
+            geted.uid = data.data[index].uid;
+            geted.userPwd = data.data[index].userPwd;
+            geted.username = data.data[index].username;
+            if (data.data[index].userRole == "PATIENT") {
+                geted.userRole = "patient";
+            } else if (data.data[index].userRole == "DOCTOR") {
+                geted.userRole = "doctor";
+            } else if (data.data[index].userRole == "ADMIN") {
+                geted.userRole = "admin";
+            }
+            if (data.data[index].userChecked == 1) {
+                geted.userChecked = "已通过";
+            } else {
+                geted.userChecked = "待审核";
+            }
+            geted.idCard = data.data[index].idCard;
+            geted.realName = data.data[index].realName;
+            geted.address = data.data[index].address;
+            geted.phone = data.data[index].phone;
+            geted.age = data.data[index].age;
+            geted.gender = data.data[index].gender;
+            geted.hospital = data.data[index].hospital;
+            geted.office = data.data[index].office;
+            geted.title = data.data[index].title;
+            geted.speciality = data.data[index].speciality;
+            geted.medicalHistory = data.data[index].medicalHistory;
+            findUser.itemList.push(geted);
+        }
+    }
 }
 
 async function changeUser(index) {
@@ -125,7 +221,7 @@ async function removeUser(index) {
                 <td>{{ item.phone }}</td>
                 <td class="buttonContainer">
                     <button class="btn1" @click="changeUser(index)">修改<br>详细信息</button>
-                    <button class="btn1" @click="removeUser(index)">删除<br>用户账号</button>
+                    <!-- <button class="btn1" @click="removeUser(index)">删除<br>用户账号</button> -->
                 </td>
             </tr>
         </table>

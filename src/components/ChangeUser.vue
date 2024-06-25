@@ -24,13 +24,89 @@ async function changeMsg() {
     let flag2 = await checkUserPwd()
     let flag3 = await checkUserIdCard()
     if (flag1 && flag2 && flag3) {
-        let { data } = await request.post("/admin/changeMsg", findUser);
-        if (data.code == 200) {
-            alert("修改成功")
-        } else {
-            alert("修改失败")
+        //根据用户身份 调用对应方法来修改信息！
+        if (findUser.userRole == "patient") {
+            let authorized = 0;
+            if (findUser.userChecked == "已通过") {
+                authorized = 1;
+            } else if (findUser.userChecked == "待审核") {
+                authorized = 0;
+            }
+            let { data } = await request.post("patient/update", {
+                userId: findUser.uid,
+                userName: findUser.username,
+                password: findUser.userPwd,
+                idNumber: findUser.idCard,
+                name: findUser.realName,
+                age: findUser.age,
+                gender: findUser.gender,
+                address: findUser.address,
+                contact: findUser.phone,
+                medicalRecord: findUser.medicalHistory,
+                authorized: authorized,
+                userRole: "PATIENT",
+            });
+            if (data.code == 200) {
+                alert("修改成功")
+            } else {
+                alert("修改失败")
+            }
+
+        } else if (findUser.userRole == "doctor") {
+            let authorized = 0;
+            if (findUser.userChecked == "已通过") {
+                authorized = 1;
+            } else if (findUser.userChecked == "待审核") {
+                authorized = 0;
+            }
+            let { data } = await request.post("doctor/update", {
+                userId: findUser.uid,
+                userName: findUser.username,
+                password: findUser.userPwd,
+                idNumber: findUser.idCard,
+                name: findUser.realName,
+                age: findUser.age,
+                gender: findUser.gender,
+                address: findUser.address,
+                contact: findUser.phone,
+                hospital: findUser.hospital,
+                department: findUser.office,
+                title: findUser.title,
+                specialty: findUser.speciality,
+                authorized: authorized,
+                userRole: "DOCTOR",
+            });
+            if (data.code == 200) {
+                alert("修改成功")
+            } else {
+                alert("修改失败")
+            }
+
+        } else if (findUser.userRole == "admin") {
+            let { data } = await request.post("admin/update", {
+                userId: findUser.uid,
+                userName: findUser.username,
+                password: findUser.userPwd,
+                idNumber: findUser.idCard,
+                name: findUser.realName,
+
+                address: findUser.address,
+                contact: findUser.phone,
+                userRole: "ADMIN",
+            });
+            if (data.code == 200) {
+                alert("修改成功")
+            } else {
+                alert("修改失败")
+            }
+
         }
-        location.reload();
+
+
+
+
+
+
     } else {
         alert("校验不通过,请求再次检查数据")
     }
@@ -104,9 +180,7 @@ function getback() {
             <tr class="ltr">
                 <td>身份</td>
                 <td>
-                    <input type="radio" v-model="findUser.userRole" value="patient">患者
-                    <input type="radio" v-model="findUser.userRole" value="doctor">医生
-                    <input type="radio" v-model="findUser.userRole" value="admin">管理员
+                    {{ findUser.userRole }}
                 </td>
             </tr>
             <tr class="ltr">
@@ -138,7 +212,6 @@ function getback() {
                 <td>审核状态</td>
                 <td>
                     <input type="radio" v-model="findUser.userChecked" value="已通过">已通过
-                    <input type="radio" v-model="findUser.userChecked" value="被驳回">被驳回
                     <input type="radio" v-model="findUser.userChecked" value="待审核">待审核
                 </td>
             </tr>
