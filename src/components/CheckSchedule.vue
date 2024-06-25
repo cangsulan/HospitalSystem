@@ -15,19 +15,11 @@ onMounted(async () => {
 
 
 async function agree(index) {
-    let { data } = await request.post("schedule/updateSchedule", {
-        id: schedule.itemList[index].id,
-        flag: true,
-
-    })
-    if (data.code == 200) {
-        alert("操作成功")
-        //刷新界面
-        location.reload();
-    } else {
-        alert("操作失败");
-        location.reload();
-    }
+    request.post(`admin/check/registration/${schedule.itemList[index].id}`);
+    alert("操作成功！")
+    showSchedule();
+    showSchedule();
+    showSchedule();
 }
 
 async function disagree(index) {
@@ -103,10 +95,33 @@ async function showNextPage() {
 // 查询当前用户所有日程信息 并展示到视图的方法
 async function showSchedule() {
     // 发送异步请求,获得所有待审核的所有日程记录
-    let { data } = await request.get("schedule/findAllSchedule")
-    schedule.itemList = data.data.itemList
+    let { data } = await request.get("admin/getRegistration");
+    schedule.itemList = [];
 
-
+    for (let index in data.data) {
+        let geted = new Object()
+        geted.id = data.data[index].id;
+        geted.docterName = data.data[index].doctorName;
+        geted.uid = data.data[index].uid;
+        geted.phone = data.data[index].phone;
+        geted.date = data.data[index].date;
+        geted.count = data.data[index].count;
+        geted.hospital = data.data[index].hospital;
+        geted.title = data.data[index].title;
+        geted.availableCount = data.data[index].availableCount;
+        geted.office = data.data[index].office;
+        if (data.data[index].time == 0) {
+            geted.time = "上午"
+        } else if (data.data[index].time == 1) {
+            geted.time = "下午"
+        }
+        if (data.data[index].checked == 0) {
+            geted.checked = "待审核"
+        } else {
+            geted.checked = "已通过"
+        }
+        schedule.itemList.push(geted);
+    }
 
     if (schedule.itemList.length < pageSize) {
         nextIndex.value = schedule.itemList.length;
@@ -136,16 +151,16 @@ async function showSchedule() {
                 <th>审核操作</th>
             </tr>
             <tr class="ltr" v-for="item, index in showItem.itemList" :key="index">
-                <td>{{ item.docterName }}</td>
-                <td>{{ item.title }}</td>
-                <td>{{ item.office }}</td>
-                <td>{{ item.hospital }}</td>
-                <td>{{ item.phone }}</td>
-                <td>{{ item.count }}</td>
-                <td>{{ item.year }}-{{ item.month }}-{{ item.day }} {{ item.time }}</td>
-                <td class="buttonContainer">
+                <td v-if="item.checked == '待审核'">{{ item.docterName }}</td>
+                <td v-if="item.checked == '待审核'">{{ item.title }}</td>
+                <td v-if="item.checked == '待审核'">{{ item.office }}</td>
+                <td v-if="item.checked == '待审核'">{{ item.hospital }}</td>
+                <td v-if="item.checked == '待审核'">{{ item.phone }}</td>
+                <td v-if="item.checked == '待审核'">{{ item.count }}</td>
+                <td v-if="item.checked == '待审核'">{{ item.date + " " + item.time }}</td>
+                <td class="buttonContainer" v-if="item.checked == '待审核'">
                     <button class="btn1" @click="agree(index)">通过</button>
-                    <button class="btn1" @click="disagree(index)">否决</button>
+                    <!-- <button class="btn1" @click="disagree(index)">否决</button> -->
                 </td>
             </tr>
         </table>

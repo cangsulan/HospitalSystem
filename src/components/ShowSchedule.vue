@@ -15,18 +15,65 @@ onMounted(async () => {
 })
 
 router.beforeEach((to, from, next) => {
-    if (to.name == "/showSchedule" && from.name != "/showSchedule") {
+    if (to.name == "/showSchedule") {
         showSchedule()
     }
     next();
 })
 
+function scheduleClass(uid, docterName, phone, year, month, day, time, count, id, checked, availableCount, hospital, title, office, date) {
+    this.uid = uid;
+    this.docterName = docterName;
+    this.phone = phone;
+    this.year = year;
+    this.month = month;
+    this.day = day;
+    this.time = time;
+    this.count = count;
+    this.id = id;
+    this.checked = checked;
+    this.availableCount = availableCount;
+    this.hospital = hospital;
+    this.title = title;
+    this.office = office;
+    this.date = date;
+
+}
 
 // 查询当前用户所有日程信息 并展示到视图的方法
 async function showSchedule() {
     // 发送异步请求,获得当前用户的所有日程记录
-    let { data } = await request.get("schedule/findAllSchedule", { params: { uid: sysUser.uid, username: sysUser.username } })
-    schedule.itemList = data.data.itemList
+    let { data } = await request.get("registration/getAll");
+    if (data.code == 200) {
+        schedule.itemList = [];
+        data.data.forEach((item, index, array) => {
+            let geted = new scheduleClass();
+            geted.id = data.data[index].id;
+            geted.docterName = data.data[index].doctorName;
+            geted.uid = data.data[index].uid;
+            geted.phone = data.data[index].phone;
+            geted.date = data.data[index].date;
+            geted.count = data.data[index].count;
+            geted.hospital = data.data[index].hospital;
+            geted.title = data.data[index].title;
+            geted.availableCount = data.data[index].availableCount;
+            geted.office = data.data[index].office;
+            if (data.data[index].time == 0) {
+                geted.time = "上午"
+            } else if (data.data[index].time == 1) {
+                geted.time = "下午"
+            }
+            if (data.data[index].checked == 0) {
+                geted.checked = "待审核"
+            } else {
+                geted.checked = "已通过"
+            }
+            schedule.itemList.push(geted);
+        })
+        //console.log(schedule.itemList)
+    } else {
+
+    }
 }
 
 async function addItem() {
@@ -36,14 +83,14 @@ async function addItem() {
 
 async function removeItem(index) {
     let id = schedule.itemList[index].id
-    let { data } = await request.get(`schedule/removeSchedule`, { params: { id: id } })
+    //let { data } = await request.delete(`registraion/delete/${id}`)
+    let { data } = await request.delete(`registration/delete/${id}`);
     if (data.code == 200) {
         showSchedule()
         alert("删除成功")
     } else {
         alert("删除失败")
     }
-    location.reload()
 }
 
 
@@ -63,17 +110,10 @@ async function removeItem(index) {
             </tr>
             <tr class="ltr" v-for="item, index in schedule.itemList" :key="index">
                 <td>
-                    <input type="text" v-model="item.year">年
-                    <input type="text" v-model="item.month">月
-                    <input type="text" v-model="item.day">日
-                    <select name="time" id="time" v-model="item.time">
-                        <option value="上午">上午</option>
-                        <option value="下午">下午</option>
-                        <option value="晚上">晚上</option>
-                    </select>
+                    {{ item.date + " " + item.time }}
                 </td>
                 <td>
-                    <input type="text" v-model="item.count">
+                    {{ item.count }}
                 </td>
                 <td>{{ item.checked }}</td>
                 <td class="buttonContainer">

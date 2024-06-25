@@ -29,14 +29,54 @@ let schedule = reactive({
 
 async function addSchedule() {
     schedule.availableCount = schedule.count;
-    let { data } = await request.post("schedule/addSchedule", schedule)
+    let date = "";
+    date = "" + schedule.year;
+    if (schedule.month <= 9 && schedule.month >= 1) {
+        date = date + "-0" + schedule.month;
+    } else {
+        date = date + "-" + schedule.month;
+    }
+    if (schedule.day <= 9 && schedule.day >= 1) {
+        date = date + "-0" + schedule.day;
+    } else {
+        date = date + "-" + schedule.day;
+    }
+    let daytime = 0;
+    if (schedule.time == "上午") {
+        daytime = 0;
+    } else {
+        daytime = 1;
+    }
+    // let { data2 } = await request.get("registration/getAll");
+    // let id = 0;
+    // let array = new Array();
+    // array = data2.data;
+    // if (array.length==0) {
+    //     id = 0;
+    // } else {
+    //     id = array[array.length-1].id + 1;
+    // }
+    let { data } = await request.post("registration/addRegistration", {
+        id: -1,
+        doctorId: sysUser.uid,
+        quantity: schedule.count,
+        lockedQuantity: 0,
+        date: date,
+        daytime: daytime,
+        authorized: 0,
+    })
     if (data.code == 200) {
         alert("操作成功")
-    } else {
-        alert("操作失败")
+        router.push("/showSchedule")
     }
-    router.push("/showSchedule")
+    else if (data.code == 407) {
+        alert("您在该时间段已经存在号源了哦！请勿重复发布！")
+    } else {
+        alert("操作失败。。")
+        router.push("/showSchedule")
+    }
 }
+
 
 async function goback() {
     router.push("/showSchedule")
@@ -59,7 +99,6 @@ async function goback() {
                     <select name="time" id="time" v-model="schedule.time">
                         <option value="上午">上午</option>
                         <option value="下午">下午</option>
-                        <option value="晚上">晚上</option>
                     </select>
                 </td>
                 <td>

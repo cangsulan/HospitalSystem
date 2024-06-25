@@ -4,7 +4,8 @@ import { defineUser } from '../store/userStore.js'
 let sysUser = defineUser()
 import { defineUserList } from '../store/userListStore.js'
 let userList = defineUserList()
-
+import { useRouter } from 'vue-router';
+let router = useRouter()
 
 import { ref, reactive, onUpdated, onMounted } from 'vue'
 import request from '../utils/request'
@@ -14,23 +15,34 @@ onMounted(async () => {
     showUserList()
 })
 
-
+router.beforeEach((to, from, next) => {
+    if (to.name == "/checkRegist") {
+        showUserList()
+    }
+    next();
+})
 
 
 async function agree(index) {
-    let { data } = await request.post("userList/updateuserList", {
-        uid: userList.itemList[index].uid,
-        flag: true,
-
-    })
-    if (data.code == 200) {
-        alert("操作成功")
-        //刷新界面
-        location.reload();
+    //先判断身份：
+    if (userList.itemList[index].userRole == "patient") {
+        let { data } = await request.post(`admin/check/patient/${userList.itemList[index].uid}`)
+        if (data.code == 200) {
+            alert("操作成功")
+        } else {
+            alert("操作失败");
+        }
+    } else if (userList.itemList[index].userRole == "doctor") {
+        let { data } = await request.post(`admin/check/doctor/${userList.itemList[index].uid}`)
+        if (data.code == 200) {
+            alert("操作成功")
+        } else {
+            alert("操作失败");
+        }
     } else {
         alert("操作失败");
-        location.reload();
     }
+    showUserList()
 }
 
 async function disagree(index) {
@@ -105,12 +117,44 @@ async function showNextPage() {
 
 async function showUserList() {
     // 发送异步请求,获得当前待审核的所有信息
-    let { data } = await request.get("userList/findAlluserList")
-    userList.itemList = data.data.itemList
-
-
-
-
+    let { data } = await request.get("patient/getUnauthorized");
+    userList.itemList = [];
+    for (let index in data.data) {
+        let geted = new Object();
+        geted.uid = data.data[index].uid;
+        geted.username = data.data[index].username;
+        geted.userRole = "patient"
+        if (data.data[index].userChecked == 1) {
+            geted.userChecked = "已通过";
+        } else {
+            geted.userChecked = "待审核";
+        }
+        geted.idCard = data.data[index].idCard;
+        geted.realName = data.data[index].realName;
+        geted.address = data.data[index].address;
+        geted.phone = data.data[index].phone;
+        userList.itemList.push(geted);
+    }
+    if (true) {
+        let { data } = await request.get("doctor/getUnauthorized");
+        for (let index in data.data) {
+            let geted = new Object();
+            geted.uid = data.data[index].uid;
+            geted.username = data.data[index].username;
+            geted.userRole = "doctor"
+            if (data.data[index].userChecked == 1) {
+                geted.userChecked = "已通过";
+            } else {
+                geted.userChecked = "待审核";
+            }
+            geted.idCard = data.data[index].idCard;
+            geted.realName = data.data[index].realName;
+            geted.address = data.data[index].address;
+            geted.phone = data.data[index].phone;
+            userList.itemList.push(geted);
+        }
+    }
+    console.log(userList.itemList)
     if (userList.itemList.length < pageSize) {
         nextIndex.value = userList.itemList.length;
     }
@@ -143,7 +187,7 @@ async function showUserList() {
                 <td>{{ item.phone }}</td>
                 <td class="buttonContainer">
                     <button class="btn1" @click="agree(index)">通过</button>
-                    <button class="btn1" @click="disagree(index)">否决</button>
+                    <!-- <button class="btn1" @click="disagree(index)">否决</button> -->
                 </td>
             </tr>
         </table>

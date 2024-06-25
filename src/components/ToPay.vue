@@ -30,14 +30,14 @@ let item = reactive({
     month: schedule.itemList[index.value].month,
     day: schedule.itemList[index.value].day,
     time: schedule.itemList[index.value].time,
-
+    date: schedule.itemList[index.value].date,
 })
 async function toApply() {
-    let { data } = await request.get("registration/pay",{params:{id:schedule.itemList[index.value].id}})
+    let { data } = await request.get(`registration/pay/${schedule.itemList[index.value].id}`)
     if (data.code == 200) {
-        alert("挂号成功！");
+        alert("支付成功！");
     } else {
-        alert("挂号失败，请耐心等待退款......");
+        alert("哦豁。。出错了！");
     }
     router.push("/registration");
 }
@@ -68,7 +68,7 @@ function refresh() {
                 <td>{{ item.hospital }}</td>
                 <td>{{ item.office }}</td>
                 <td>{{ item.phone }}</td>
-                <td>{{ item.year }}-{{ item.month }}-{{ item.day }}-{{ item.time }}</td>
+                <td>{{ item.date + " " + item.time }}</td>
             </tr>
         </table>
         <br>

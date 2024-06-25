@@ -28,7 +28,7 @@ onMounted(async () => {
 })
 
 router.beforeEach((to, from, next) => {
-    if (to.name == "/registration" && from.name != "/registration") {
+    if (to.name == "/registration") {
         showSchedule()
         showPatientSchedule()
     }
@@ -38,22 +38,59 @@ router.beforeEach((to, from, next) => {
 
 async function showPatientSchedule() {
     let { data } = await request.get("registration/getSelfRegistration");
-    for (let index in data.data) {
-        patientSchedule.itemList[index].id = data.data[index].id;
-        patientSchedule.itemList[index].uid = data.data[index].doctorId;
-        patientSchedule.itemList[index].count = data.data[index].quantity;
-        patientSchedule.itemList[index].availableCount = data.data[index].quantity - data.data[index].lockedQuantity;
-        if (data.data[index].authorized == 0) {
-            patientSchedule.itemList[index].checked = "待审核"
-        } else {
-            patientSchedule.itemList[index].checked = "已通过"
+    if (data.code == 200) {
+        patientSchedule.itemList = [];
+
+        for (let index in data.data) {
+            let geted = new scheduleClass();
+            geted.id = data.data[index].id;
+            geted.docterName = data.data[index].doctorName;
+            geted.uid = data.data[index].uid;
+            geted.phone = data.data[index].phone;
+            geted.date = data.data[index].date;
+            geted.count = data.data[index].count;
+            geted.hospital = data.data[index].hospital;
+            geted.title = data.data[index].title;
+            geted.availableCount = data.data[index].availableCount;
+            geted.office = data.data[index].office;
+            if (data.data[index].time == 0) {
+                geted.time = "上午"
+            } else if (data.data[index].time == 1) {
+                geted.time = "下午"
+            }
+            if (data.data[index].checked == 0) {
+                geted.checked = "待审核"
+            } else {
+                geted.checked = "已通过"
+            }
+            patientSchedule.itemList.push(geted);
         }
-        patientSchedule.itemList[index].date = data.data[index].quantity;
+    } else {
 
     }
+
+
 }
 
 
+function scheduleClass(uid, docterName, phone, year, month, day, time, count, id, checked, availableCount, hospital, title, office, date) {
+    this.uid = uid;
+    this.docterName = docterName;
+    this.phone = phone;
+    this.year = year;
+    this.month = month;
+    this.day = day;
+    this.time = time;
+    this.count = count;
+    this.id = id;
+    this.checked = checked;
+    this.availableCount = availableCount;
+    this.hospital = hospital;
+    this.title = title;
+    this.office = office;
+    this.date = date;
+
+}
 
 
 
@@ -111,13 +148,37 @@ async function showNextPage() {
 
 
 async function showSchedule() {
-    let { data } = await request.get("schedule/findAllSchedule")
-    schedule.itemList = data.data.itemList
+    let { data } = await request.get("registration/getAfterRegistration")
+    if (data.code == 200) {
+        schedule.itemList = [];
 
-
-
-
-
+        for (let index in data.data) {
+            let geted = new scheduleClass();
+            geted.docterName = data.data[index].doctorName;
+            geted.id = data.data[index].id;
+            geted.uid = data.data[index].uid;
+            geted.phone = data.data[index].phone;
+            geted.date = data.data[index].date;
+            geted.count = data.data[index].count;
+            geted.hospital = data.data[index].hospital;
+            geted.title = data.data[index].title;
+            geted.availableCount = data.data[index].availableCount;
+            geted.office = data.data[index].office;
+            if (data.data[index].time == 0) {
+                geted.time = "早上"
+            } else if (data.data[index].time == 1) {
+                geted.time = "下午"
+            }
+            if (data.data[index].checked == 0) {
+                geted.checked = "待审核"
+            } else {
+                geted.checked = "已通过"
+            }
+            schedule.itemList.push(geted)
+        }
+    } else {
+        alert("信息获取出错，请稍后再试！")
+    }
     if (schedule.itemList.length < pageSize) {
         nextIndex.value = schedule.itemList.length;
     }
@@ -131,22 +192,20 @@ async function TransformIndex(index) {
 }
 
 async function toApply(id, index) {
-    transmit(await TransformIndex(index));
-    let { data } = await request.get("registration/registration", { params: { id: id } });
-
+    let { data } = await request.get(`registration/registration/${id}`);
     if (data.code == 200) {
-        alert("挂号成功，前往支付。。");
+        alert("挂号成功！前往支付！")
         transmit(await TransformIndex(index));
     } else {
-        alert("挂号失败......");
+        alert("挂号失败！")
     }
-    refresh();
 }
 
 
 //刷新当前网页
 function refresh() {
-    location.reload()
+    showPatientSchedule()
+    showSchedule()
 }
 
 </script>
@@ -154,8 +213,8 @@ function refresh() {
 <template>
     <div>
         <div style="text-align: center;">
-            <h7 class="ht">要挂号请及时刷新信息，来得到最新信息</h7>
-            <button class="btn1" @click="refresh()">刷新页面</button>
+            <h7 class="ht">要挂号请及时 获取最新信息！</h7>
+            <button class="btn1" @click="refresh()">获取最新信息</button>
         </div>
         <hr>
         <h3 class="ht">您当前已挂号的信息如下</h3>
@@ -174,7 +233,7 @@ function refresh() {
                 <td>{{ item.hospital }}</td>
                 <td>{{ item.office }}</td>
                 <td>{{ item.phone }}</td>
-                <td>{{ item.year }}-{{ item.month }}-{{ item.day }} {{ item.time }}</td>
+                <td>{{ item.date + " " + item.time }}</td>
             </tr>
         </table>
         <h6 class="ht">温馨提示：请您注意就诊时间,不要错过了哦~</h6>
@@ -197,7 +256,7 @@ function refresh() {
                 <td>{{ item.hospital }}</td>
                 <td>{{ item.office }}</td>
                 <td>{{ item.phone }}</td>
-                <td>{{ item.year }}-{{ item.month }}-{{ item.day }} {{ item.time }}</td>
+                <td>{{ item.date + " " + item.time }}</td>
                 <td>{{ item.availableCount }}</td>
                 <td class="buttonContainer">
                     <button class="btn1" @click="toApply(item.id, index)">挂号</button>

@@ -27,30 +27,37 @@ async function checkUserIdCard() {
 async function changeMsg() {
   let flag1 = await checkUserIdCard()
   if (flag1) {
-    let { data } = await request.post("/doctor/update", {
+    let { data } = await request.post("doctor/update", {
+      userId: sysUser.uid,
       userName: sysUser.username,
       password: sysUser.userPwd,
-      idNumber: sysUser.userIdCard,
-      name: sysUser.userRealName,
-      age: sysUser.userAge,
-      gender: sysUser.userGender,
-      address: sysUser.userAddress,
-      contact: sysUser.userPhone,
+      idNumber: sysDocter.idCard,
+      name: sysDocter.realName,
+      age: sysDocter.age,
+      gender: sysDocter.gender,
+      address: sysDocter.address,
+      contact: sysDocter.phone,
       hospital: sysDocter.hospital,
       department: sysDocter.office,
       title: sysDocter.title,
       specialty: sysDocter.speciality,
       authorized: 1,
       userRole: "doctor",
+    })
 
-
-    });
     if (data.code == 200) {
       alert("修改成功")
+      //把 sysDocter的修改 同步到 sysUser中：
+      sysUser.idCard = sysDocter.idCard;
+      sysUser.realName = sysDocter.realName;
+      sysUser.age = sysDocter.age;
+      sysUser.gender = sysDocter.gender;
+      sysUser.address = sysDocter.address;
+      sysUser.phone = sysDocter.phone;
+
     } else {
       alert("修改失败")
     }
-    location.reload()
   } else {
     alert("校验不通过,请求再次检查数据")
   }
