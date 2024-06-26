@@ -25,7 +25,7 @@ let reUserPwdMsg = ref('')
 let reUserPwd = ref('')
 
 async function checkUserPwd() {
-    let userPwdReg = /^[a-zA-Z0-9]{6,16}$/
+    let userPwdReg = /^[a-zA-Z0-9]{5,16}$/
     if (!userPwdReg.test(newPwd.userPwd)) {
         userPwdMsg.value = "格式有误"
         return false
@@ -35,7 +35,7 @@ async function checkUserPwd() {
 }
 
 async function checkReUserPwd() {
-    let userPwdReg = /^[a-zA-Z0-9]{6,16}$/
+    let userPwdReg = /^[a-zA-Z0-9]{5,16}$/
     if (!userPwdReg.test(reUserPwd.value)) {
         reUserPwdMsg.value = "格式有误"
         return false
@@ -80,7 +80,9 @@ async function changePwd() {
             })
             if (data.code == 200) {
                 // 注册成功跳转 登录页
-                alert("修改成功,请重新登陆!")
+                sysUser.userPwd = newPwd.userPwd;
+                localStorage.setItem("userPwd", newPwd.userPwd);
+                alert("修改成功!")
                 router.push("/login")
             } else {
                 alert("抱歉,出错了")
@@ -105,7 +107,9 @@ async function changePwd() {
             })
             if (data.code == 200) {
                 // 注册成功跳转 登录页
-                alert("修改成功,请重新登陆!")
+                sysUser.userPwd = newPwd.userPwd;
+                localStorage.setItem("userPwd", newPwd.userPwd);
+                alert("修改成功!")
                 router.push("/login")
             } else {
                 alert("抱歉,出错了")
@@ -124,7 +128,9 @@ async function changePwd() {
             })
             if (data.code == 200) {
                 // 注册成功跳转 登录页
-                alert("修改成功,请重新登陆!")
+                sysUser.userPwd = newPwd.userPwd;
+                localStorage.setItem("userPwd", newPwd.userPwd);
+                alert("修改成功!")
                 router.push("/login")
             } else {
                 alert("抱歉,出错了")

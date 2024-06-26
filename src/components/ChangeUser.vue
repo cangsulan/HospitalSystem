@@ -128,7 +128,7 @@ async function checkUserIdCard() {
 }
 
 async function checkUsername() {
-    let usernameReg = /^[a-zA-Z0-9]{5,10}$/
+    let usernameReg = /^[a-zA-Z0-9]{4,10}$/
     if (!usernameReg.test(findUser.username)) {
         usernameMsg.value = "格式有误"
         return false
@@ -144,7 +144,7 @@ async function checkUsername() {
 }
 
 async function checkUserPwd() {
-    let userPwdReg = /^[a-zA-Z0-9]{6,16}$/
+    let userPwdReg = /^[a-zA-Z0-9]{5,16}$/
     if (!userPwdReg.test(findUser.userPwd)) {
         userPwdMsg.value = "格式有误"
         return false

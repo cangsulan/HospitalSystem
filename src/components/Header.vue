@@ -26,11 +26,7 @@ function goHome() {
   } else if (sysUser.userRole == "doctor") {
     router.push("/docterhome");
   } else if (sysUser.userRole == "admin") {
-    if (sysUser.username == "admin" && sysUser.userPwd == "admin") {
-      router.push("/changePwd");
-    } else {
       router.push("/adminhome");
-    }
   }
 }
 

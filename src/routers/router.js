@@ -29,7 +29,6 @@ import {
 
 let sysUser = defineUser(pinia)
 
-
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [{
@@ -107,8 +106,14 @@ router.beforeEach((to, from, next) => {
         if (sysUser.username == '' || sysUser.username == null) {
             next("/login")
         } else {
-            next()
+            if (sysUser.username == 'admin' && sysUser.userPwd == 'admin' && to.path != "/changePwd" && to.path!="/login" && to.path!="/regist") {
+                alert("检测到当前管理员为 初始密码admin,请更改您的密码！")
+                next("/changePwd");
+            } else {
+                next()
+            }
         }
+
     } else {
         next()
     }

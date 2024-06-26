@@ -143,7 +143,7 @@ let usernameMsg = ref("");
 let userPwdMsg = ref("");
 
 function checkUsername() {
-    let usernameReg = /^[a-zA-Z0-9]{5,10}$/;
+    let usernameReg = /^[a-zA-Z0-9]{4,10}$/;
     if (!usernameReg.test(loginUser.username)) {
         usernameMsg.value = "格式有误";
         return false;
@@ -153,7 +153,7 @@ function checkUsername() {
 }
 
 function checkUserPwd() {
-    let userPwdReg = /^[a-zA-Z0-9]{6,16}$/;
+    let userPwdReg = /^[a-zA-Z0-9]{5,16}$/;
 
     if (!userPwdReg.test(loginUser.userPwd)) {
         userPwdMsg.value = "格式有误";
