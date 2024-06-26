@@ -8,7 +8,7 @@ let sysUser = defineUser()
 import { defineAdminLog } from '../store/adminLogStore.js';
 let logList = defineAdminLog()
 
-let pageSize = 8;
+let pageSize = 6;
 
 import { ref, reactive, onUpdated, onMounted } from 'vue'
 import request from '../utils/request'
@@ -35,12 +35,10 @@ async function showLogs() {
     let { data } = await request.get("log/getAll");
 
     logList.itemList = [];
+    logList.itemList = data.data;
     for (let index in data.data) {
-        let geted = new Object();
-        geted.id = data.data[index].id;
-        let item = data.data[index];
-        geted.log = `管理员 ${item.adminId} 号更改了 ${item.userRole} 用户 ${item.userId} 号的信息,修改时间为: ${item.modifyTime} ,修改类型为${item.operationType},该用户信息原来为：${item.originalValue} `;
-        logList.itemList.push(geted);
+        //把json字符串转为js的json对象
+        logList.itemList[index].originalValue = (eval('(' + data.data[index].originalValue + ')'));
     }
 
 
@@ -94,6 +92,16 @@ async function showNextLogs() {
     log.itemList = logList.itemList.slice(logIndex.value, nextIndex.value);
     console.log(logIndex.value, nextIndex.value, logList.itemList.length)
 }
+
+async function showLastLogs() {
+    //跳转到尾页
+    logIndex.value = parseInt(logList.itemList.length / pageSize) * pageSize;
+    nextIndex.value = logIndex.value + pageSize;
+    if (nextIndex.value > logList.itemList.length) {
+        nextIndex.value = logList.itemList.length;
+    }
+    log.itemList = logList.itemList.slice(logIndex.value, nextIndex.value);
+}
 </script>
 
 <template>
@@ -101,23 +109,49 @@ async function showNextLogs() {
         <h3 class="ht">管理员操作记录如下</h3>
         <table class="tab" cellspacing="0px">
             <tr class="ltr">
-                <th style="width: 60px">序号</th>
+                <th style="width: 80px">序号</th>
                 <th>log描述:</th>
             </tr>
             <tr class="ltr" v-for="(item, index) in log.itemList" :key="index">
                 <td style="text-align: center">{{ log.itemList[index].id }}</td>
                 <td>
-                    {{ log.itemList[index].log }}
+                    管理员 {{ item.adminId }} 号 更改了 <span style="color: red;">{{ item.userRole }} 用户 {{ item.userId }}
+                        号</span> 的信息,
+                    <br><span style="color: red;">修改时间为: {{ item.modifyTime }} ,修改类型为{{ item.operationType }}</span>
+                    ,该用户信息 原来 为：
+                    <div class="grid-container">
+                        <span class="grid-item field-1">uid: {{ item.originalValue.uid }}</span>
+                        <span class="grid-item field-2">userRole: {{ item.originalValue.userRole }}</span>
+
+                        <span class="grid-item field-1">userChecked: {{ item.originalValue.userChecked }}</span>
+                        <span class="grid-item field-2">username: {{ item.originalValue.username }}</span>
+
+                        <span class="grid-item field-1">realName: {{ item.originalValue.realName }}</span>
+                        <span class="grid-item field-2">idCard: {{ item.originalValue.idCard }}</span>
+
+                        <span class="grid-item field-1">age: {{ item.originalValue.age }}</span>
+                        <span class="grid-item field-1">gender: {{ item.originalValue.gender }}</span>
+                        <span class="grid-item field-2">address: {{ item.originalValue.address }}</span>
+
+
+                        <span class="grid-item field-1">title: {{ item.originalValue.title }}</span>
+                        <span class="grid-item field-1">office: {{ item.originalValue.office }}</span>
+                        <span class="grid-item field-2">hospital: {{ item.originalValue.hospital }}</span>
+
+                        <span class="grid-item field-2">phone: {{ item.originalValue.phone }}</span>
+                        <span class="grid-item field-2">speciality: {{ item.originalValue.speciality }}</span>
+
+                    </div>
+                    <br><span class="grid-item field-2">medicalHistory: {{ item.originalValue.medicalHistory }}</span>
                 </td>
             </tr>
         </table>
         <br />
         <div style="text-align: center">
             <button @click="showFirstLogs()">首页</button>
-            <button style="margin-right: 20px; margin-left: 20px" @click="showPreLogs()">
-                上一页
-            </button>
-            <button @click="showNextLogs()">下一页</button>
+            <button style="margin-right: 20px; margin-left: 20px" @click="showPreLogs()">上一页</button>
+            <button style="margin-right: 20px; margin-left: 20px" @click="showNextLogs()">下一页</button>
+            <button @click="showLastLogs()">尾页</button>
         </div>
     </div>
 </template>
@@ -130,7 +164,7 @@ async function showNextLogs() {
 }
 
 .tab {
-    width: 70%;
+    width: 90%;
     border: 5px solid cadetblue;
     margin: 0px auto;
     border-radius: 5px;
@@ -165,5 +199,31 @@ async function showNextLogs() {
 
 .buttonContainer {
     text-align: center;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 20% 30% 50%;
+    /* 两列布局 */
+    gap: 10px;
+    /* 每个字段之间的间隔 */
+    width: 99%;
+}
+
+.grid-item {
+    padding: 4px;
+    border: 0px solid #000;
+    height: 4px;
+    /* 可选：添加边框以查看效果 */
+}
+
+.field-1 {
+    text-align: left;
+    /* 第一列左对齐 */
+}
+
+.field-2 {
+    text-align: left;
+    /* 第二列左对齐 */
 }
 </style>

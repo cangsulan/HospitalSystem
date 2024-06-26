@@ -88,6 +88,8 @@ async function removeItem(index) {
     if (data.code == 200) {
         showSchedule()
         alert("删除成功")
+    } else if (data.code == 409) {
+        alert("号源已被挂号，不可以删除了！")
     } else {
         alert("删除失败")
     }

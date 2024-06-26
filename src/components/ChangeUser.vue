@@ -45,7 +45,7 @@ async function changeMsg() {
                 contact: findUser.phone,
                 medicalRecord: findUser.medicalHistory,
                 authorized: authorized,
-                userRole: "patien",
+                userRole: "patient",
             });
             if (data.code == 200) {
                 alert("修改成功")

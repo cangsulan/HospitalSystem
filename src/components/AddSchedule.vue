@@ -71,6 +71,8 @@ async function addSchedule() {
     }
     else if (data.code == 407) {
         alert("您在该时间段已经存在号源了哦！请勿重复发布！")
+    } else if (data.code == 405) {
+        alert("您的账号还未通过审核，没有出诊权限哦！")
     } else {
         alert("操作失败。。")
     }

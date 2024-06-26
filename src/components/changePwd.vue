@@ -57,6 +57,12 @@ async function changePwd() {
 
         //分情况发送：
         console.log(sysUser.userRole)
+        let authorized = 0;
+        if (sysUser.userChecked == "已通过") {
+            authorized = 1;
+        } else {
+            authorized = 0;
+        }
         if (sysUser.userRole == "patient") {
             let { data } = await request.post("patient/update", {
                 userId: sysUser.uid,
@@ -69,7 +75,7 @@ async function changePwd() {
                 address: sysUser.address,
                 contact: sysUser.phone,
                 medicalRecord: patient.medicalHistory,
-                authorized: 1,
+                authorized: authorized,
                 userRole: "patient",
             })
             if (data.code == 200) {
@@ -94,7 +100,7 @@ async function changePwd() {
                 department: docter.office,
                 title: docter.title,
                 specialty: docter.speciality,
-                authorized: 1,
+                authorized: authorized,
                 userRole: "doctor",
             })
             if (data.code == 200) {
@@ -111,7 +117,7 @@ async function changePwd() {
                 password: newPwd.userPwd,
                 idNumber: sysUser.idCard,
                 name: sysUser.realName,
-                
+
                 address: sysUser.address,
                 contact: sysUser.phone,
                 userRole: "admin",

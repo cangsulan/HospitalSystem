@@ -27,6 +27,12 @@ async function checkUserIdCard() {
 async function changeMsg() {
   let flag1 = await checkUserIdCard()
   if (flag1) {
+    let authorized = 0;
+        if (sysUser.userChecked == "已通过") {
+            authorized = 1;
+        } else {
+            authorized = 0;
+        }
     let { data } = await request.post("doctor/update", {
       userId: sysUser.uid,
       userName: sysUser.username,
@@ -41,7 +47,7 @@ async function changeMsg() {
       department: sysDocter.office,
       title: sysDocter.title,
       specialty: sysDocter.speciality,
-      authorized: 1,
+      authorized: authorized,
       userRole: "doctor",
     })
 
