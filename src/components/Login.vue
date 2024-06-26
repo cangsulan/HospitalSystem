@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 
@@ -13,12 +13,118 @@ import { defineDocter } from "../store/docterStore.js";
 let docter = defineDocter();
 
 import request from "../utils/request";
+import { ElSpace, ElStep } from "element-plus";
 
 let loginUser = reactive({
     username: "",
     userPwd: "",
     userRole: "patient",
 });
+
+
+onMounted(async () => {
+    //登录前先检查sessionStorage中有没有之前的登录信息，
+    if (sessionStorage.getItem("uid") == null) {
+        return;
+    }
+    sysUser.userRole = sessionStorage.getItem("userRole");
+    sysUser.username = sessionStorage.getItem("username");
+    sysUser.userPwd = sessionStorage.getItem("userPwd");
+    sysUser.uid = sessionStorage.getItem("uid");
+
+    //根据用户身份，获取信息
+    if (sysUser.userRole == "patient") {
+        let { data } = await request.get("patient/get");
+        if (data.code == 200) {
+            let userData = data;
+            sysUser.uid = userData.data.uid;
+            sysUser.username = userData.data.username;
+            sysUser.userRole = "patient";
+            if (userData.data.userChecked == 0) {
+                sysUser.userChecked = "待审核"
+            } else {
+                sysUser.userChecked = "已通过"
+            }
+            sysUser.idCard = userData.data.idCard;
+            sysUser.realName = userData.data.realName;
+            sysUser.address = userData.data.address;
+            sysUser.phone = userData.data.phone;
+
+            patient.idCard = userData.data.idCard;
+            patient.realName = userData.data.realName;
+            patient.age = userData.data.age;
+            patient.gender = userData.data.gender;
+            patient.address = userData.data.address;
+            patient.phone = userData.data.phone;
+            patient.medicalHistory = userData.data.medicalHistory;
+            router.push("/patienthome");
+        } else {
+            alert("信息获取出错了！")
+        }
+    } else if (sysUser.userRole == "doctor") {
+        let { data } = await request.get("doctor/get");
+        if (data.code == 200) {
+            let userData = data;
+
+            sysUser.uid = userData.data.uid;
+            sysUser.username = userData.data.username;
+            sysUser.userRole = "doctor";
+            if (userData.data.userChecked == 0) {
+                sysUser.userChecked = "待审核"
+            } else {
+                sysUser.userChecked = "已通过"
+            }
+            sysUser.idCard = userData.data.idCard;
+            sysUser.realName = userData.data.realName;
+            sysUser.address = userData.data.address;
+            sysUser.phone = userData.data.phone;
+
+            docter.idCard = userData.data.idCard;
+            docter.realName = userData.data.realName;
+            docter.age = userData.data.age;
+            docter.gender = userData.data.gender;
+            docter.address = userData.data.address;
+            docter.phone = userData.data.phone;
+            docter.hospital = userData.data.hospital;
+            docter.office = userData.data.office;
+            docter.title = userData.data.title;
+            docter.speciality = userData.data.speciality;
+            router.push("/docterhome");
+        } else {
+            alert("信息获取出错了！")
+        }
+    } else if (sysUser.userRole == "admin") {
+        let { data } = await request.get("admin/get");
+        if (data.code == 200) {
+            let userData = data;
+            sysUser.uid = userData.data.uid;
+            sysUser.username = userData.data.username;
+            sysUser.userRole = "admin";
+            if (userData.data.userChecked == 0) {
+                sysUser.userChecked = "待审核"
+            } else {
+                sysUser.userChecked = "已通过"
+            }
+            sysUser.idCard = userData.data.idCard;
+            sysUser.realName = userData.data.realName;
+            sysUser.address = userData.data.address;
+            sysUser.phone = userData.data.phone;
+
+            admin.idCard = userData.data.idCard;
+            admin.realName = userData.data.realName;
+            admin.address = userData.data.address;
+            admin.phone = userData.data.phone;
+            router.push("/adminhome");
+
+        } else {
+            alert("信息获取出错了！")
+        }
+    }
+
+
+
+})
+
 
 
 let usernameMsg = ref("");
@@ -86,7 +192,15 @@ async function login() {
             patient.phone = userData.data.phone;
             patient.medicalHistory = userData.data.medicalHistory;
 
+
+
+            //把基本的登录信息保存到sessionStorage中：
+            sessionStorage.setItem("userRole", "patient");
+            sessionStorage.setItem("username", sysUser.username);
+            sessionStorage.setItem("userPwd", sysUser.userPwd);
+            sessionStorage.setItem("uid", sysUser.uid);
             router.push("/patienthome");
+
         } else {
             alert("登录失败");
         }
@@ -125,7 +239,15 @@ async function login() {
             docter.office = userData.data.office;
             docter.title = userData.data.title;
             docter.speciality = userData.data.speciality;
+
+            //把基本的登录信息保存到sessionStorage中：
+            sessionStorage.setItem("userRole", "doctor");
+            sessionStorage.setItem("username", sysUser.username);
+            sessionStorage.setItem("userPwd", sysUser.userPwd);
+            sessionStorage.setItem("uid", sysUser.uid);
             router.push("/docterhome");
+
+
 
         } else {
             alert("登录失败");
@@ -162,6 +284,13 @@ async function login() {
             if (sysUser.username == "admin" && sysUser.userPwd == "admin") {
                 router.push("/changePwd");
             }
+
+
+            //把基本的登录信息保存到sessionStorage中：
+            sessionStorage.setItem("userRole", "admin");
+            sessionStorage.setItem("username", sysUser.username);
+            sessionStorage.setItem("userPwd", sysUser.userPwd);
+            sessionStorage.setItem("uid", sysUser.uid);
             router.push("/adminhome");
         } else {
             alert("登录失败");

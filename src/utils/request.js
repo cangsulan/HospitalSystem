@@ -2,8 +2,8 @@ import axios from 'axios'
 
 //  创建instance实例
 const instance = axios.create({
-    baseURL: '/api'
-
+    baseURL: '/api',
+    withCredentials: true
 })
 
 //  添加请求拦截

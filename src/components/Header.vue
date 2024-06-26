@@ -52,6 +52,10 @@ async function logout() {
   patientSchedule.$reset()
   userList.$reset()
 
+  sessionStorage.removeItem("userRole");
+  sessionStorage.removeItem("username");
+  sessionStorage.removeItem("userPwd");
+  sessionStorage.removeItem("uid");
   // 跳转到登录页
   router.push("/login")
 }

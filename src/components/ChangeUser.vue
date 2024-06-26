@@ -25,6 +25,7 @@ async function changeMsg() {
     let flag3 = await checkUserIdCard()
     if (flag1 && flag2 && flag3) {
         //根据用户身份 调用对应方法来修改信息！
+        console.log(findUser)
         if (findUser.userRole == "patient") {
             let authorized = 0;
             if (findUser.userChecked == "已通过") {
@@ -44,7 +45,7 @@ async function changeMsg() {
                 contact: findUser.phone,
                 medicalRecord: findUser.medicalHistory,
                 authorized: authorized,
-                userRole: "PATIENT",
+                userRole: "patien",
             });
             if (data.code == 200) {
                 alert("修改成功")
@@ -74,7 +75,7 @@ async function changeMsg() {
                 title: findUser.title,
                 specialty: findUser.speciality,
                 authorized: authorized,
-                userRole: "DOCTOR",
+                userRole: "doctor",
             });
             if (data.code == 200) {
                 alert("修改成功")
@@ -92,7 +93,7 @@ async function changeMsg() {
 
                 address: findUser.address,
                 contact: findUser.phone,
-                userRole: "ADMIN",
+                userRole: "admin",
             });
             if (data.code == 200) {
                 alert("修改成功")
