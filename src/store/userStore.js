@@ -10,7 +10,7 @@ export const defineUser = defineStore(
     "loginUser", {
         state: () => {
             return {
-                uid: 0, //用户账号在数据库的uid
+                uid: -1, //用户账号在数据库的uid
                 userPwd: "", //账号密码
                 username: '', //账号名，这是账号的名称，可以和真实姓名不同
                 userRole: "patient", //身份 patient || doctor || admin

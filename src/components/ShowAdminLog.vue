@@ -8,7 +8,7 @@ let sysUser = defineUser()
 import { defineAdminLog } from '../store/adminLogStore.js';
 let logList = defineAdminLog()
 
-let pageSize = 10;
+let pageSize = 8;
 
 import { ref, reactive, onUpdated, onMounted } from 'vue'
 import request from '../utils/request'
@@ -130,7 +130,7 @@ async function showNextLogs() {
 }
 
 .tab {
-    width: 80%;
+    width: 70%;
     border: 5px solid cadetblue;
     margin: 0px auto;
     border-radius: 5px;

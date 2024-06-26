@@ -2,7 +2,6 @@
 import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
-
 import { defineUser } from "../store/userStore.js";
 let sysUser = defineUser();
 import { definePatient } from "../store/patientStore.js";
@@ -13,7 +12,6 @@ import { defineDocter } from "../store/docterStore.js";
 let docter = defineDocter();
 
 import request from "../utils/request";
-import { ElSpace, ElStep } from "element-plus";
 
 let loginUser = reactive({
     username: "",
@@ -21,16 +19,15 @@ let loginUser = reactive({
     userRole: "patient",
 });
 
-
 onMounted(async () => {
-    //登录前先检查sessionStorage中有没有之前的登录信息，
-    if (sessionStorage.getItem("uid") == null) {
+    //登录前先检查localStorage中有没有之前的登录信息，
+    if (localStorage.getItem("uid") == null) {
         return;
     }
-    sysUser.userRole = sessionStorage.getItem("userRole");
-    sysUser.username = sessionStorage.getItem("username");
-    sysUser.userPwd = sessionStorage.getItem("userPwd");
-    sysUser.uid = sessionStorage.getItem("uid");
+    sysUser.userRole = localStorage.getItem("userRole");
+    sysUser.username = localStorage.getItem("username");
+    sysUser.userPwd = localStorage.getItem("userPwd");
+    sysUser.uid = localStorage.getItem("uid");
 
     //根据用户身份，获取信息
     if (sysUser.userRole == "patient") {
@@ -59,7 +56,12 @@ onMounted(async () => {
             patient.medicalHistory = userData.data.medicalHistory;
             router.push("/patienthome");
         } else {
-            alert("信息获取出错了！")
+            console.log("信息获取出错了！")
+            localStorage.removeItem("userRole");
+            localStorage.removeItem("username");
+            localStorage.removeItem("userPwd");
+            localStorage.removeItem("uid");
+            sysUser.$reset()
         }
     } else if (sysUser.userRole == "doctor") {
         let { data } = await request.get("doctor/get");
@@ -91,7 +93,12 @@ onMounted(async () => {
             docter.speciality = userData.data.speciality;
             router.push("/docterhome");
         } else {
-            alert("信息获取出错了！")
+            console.log("信息获取出错了！")
+            localStorage.removeItem("userRole");
+            localStorage.removeItem("username");
+            localStorage.removeItem("userPwd");
+            localStorage.removeItem("uid");
+            sysUser.$reset()
         }
     } else if (sysUser.userRole == "admin") {
         let { data } = await request.get("admin/get");
@@ -117,7 +124,12 @@ onMounted(async () => {
             router.push("/adminhome");
 
         } else {
-            alert("信息获取出错了！")
+            console.log("信息获取出错了！")
+            localStorage.removeItem("userRole");
+            localStorage.removeItem("username");
+            localStorage.removeItem("userPwd");
+            localStorage.removeItem("uid");
+            sysUser.$reset()
         }
     }
 
@@ -194,11 +206,11 @@ async function login() {
 
 
 
-            //把基本的登录信息保存到sessionStorage中：
-            sessionStorage.setItem("userRole", "patient");
-            sessionStorage.setItem("username", sysUser.username);
-            sessionStorage.setItem("userPwd", sysUser.userPwd);
-            sessionStorage.setItem("uid", sysUser.uid);
+            //把基本的登录信息保存到localStorage中：
+            localStorage.setItem("userRole", "patient");
+            localStorage.setItem("username", sysUser.username);
+            localStorage.setItem("userPwd", sysUser.userPwd);
+            localStorage.setItem("uid", sysUser.uid);
             router.push("/patienthome");
 
         } else {
@@ -240,11 +252,11 @@ async function login() {
             docter.title = userData.data.title;
             docter.speciality = userData.data.speciality;
 
-            //把基本的登录信息保存到sessionStorage中：
-            sessionStorage.setItem("userRole", "doctor");
-            sessionStorage.setItem("username", sysUser.username);
-            sessionStorage.setItem("userPwd", sysUser.userPwd);
-            sessionStorage.setItem("uid", sysUser.uid);
+            //把基本的登录信息保存到localStorage中：
+            localStorage.setItem("userRole", "doctor");
+            localStorage.setItem("username", sysUser.username);
+            localStorage.setItem("userPwd", sysUser.userPwd);
+            localStorage.setItem("uid", sysUser.uid);
             router.push("/docterhome");
 
 
@@ -286,11 +298,11 @@ async function login() {
             }
 
 
-            //把基本的登录信息保存到sessionStorage中：
-            sessionStorage.setItem("userRole", "admin");
-            sessionStorage.setItem("username", sysUser.username);
-            sessionStorage.setItem("userPwd", sysUser.userPwd);
-            sessionStorage.setItem("uid", sysUser.uid);
+            //把基本的登录信息保存到localStorage中：
+            localStorage.setItem("userRole", "admin");
+            localStorage.setItem("username", sysUser.username);
+            localStorage.setItem("userPwd", sysUser.userPwd);
+            localStorage.setItem("uid", sysUser.uid);
             router.push("/adminhome");
         } else {
             alert("登录失败");

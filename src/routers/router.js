@@ -104,7 +104,7 @@ router.beforeEach((to, from, next) => {
     if (to.path != "/login" && to.path != "/regist") {
         // 登陆过放行
         // 没登录 回到登录页
-        if (sysUser.username == '') {
+        if (sysUser.username == '' || sysUser.username == null) {
             next("/login")
         } else {
             next()
@@ -114,5 +114,4 @@ router.beforeEach((to, from, next) => {
     }
 
 })
-
 export default router
